@@ -13,7 +13,8 @@ const AdminDashboard = () => {
 
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
-  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [description, setDescription] = useState('');
   const [waitTime, setWaitTime] = useState('10');
   const [rating, setRating] = useState('4.5');
@@ -60,17 +61,21 @@ const AdminDashboard = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !location.trim() || !image.trim()) {
-      alert('Name, Location, and Image URL are required.');
+    if (!name.trim() || !location.trim() || !imageFile) {
+      alert('Name, Location, and Image are required.');
       return;
     }
 
     try {
       setSubmitting(true);
+      
+      const uploadRes = await restaurantAPI.uploadImage(imageFile);
+      const imageUrl = uploadRes.url;
+
       const payload = {
         name: name.trim(),
         location: location.trim(),
-        image: image.trim(),
+        image: imageUrl,
         description: description.trim(),
         waitTime: Number(waitTime) || 0,
         rating: Number(rating) || 4.5,
@@ -79,7 +84,7 @@ const AdminDashboard = () => {
       };
       await restaurantAPI.createRestaurant(payload);
       alert('Restaurant created successfully');
-      setName(''); setLocation(''); setImage(''); setDescription(''); 
+      setName(''); setLocation(''); setImageFile(null); setImagePreview(''); setDescription(''); 
       setWaitTime('10'); setRating('4.5'); setFormPasskey('');
       fetchRestaurants();
     } catch (err) {
@@ -215,11 +220,25 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Image URL</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Restaurant Image</label>
                   <div className="relative">
-                    <input type="url" value={image} onChange={e => setImage(e.target.value)} required className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="https://..." />
-                    <ImageIcon size={16} className="absolute left-3 top-2.5 text-gray-400" />
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={e => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                        }
+                      }} 
+                      required={!imagePreview}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" 
+                    />
                   </div>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="Preview" className="mt-2 h-20 w-20 object-cover rounded-lg border border-gray-200" />
+                  )}
                 </div>
 
                 <div>

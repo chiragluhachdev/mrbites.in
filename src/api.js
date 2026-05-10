@@ -62,6 +62,16 @@ export const restaurantAPI = {
     const response = await api.put(`/api/restaurants/${id}`, updates);
     return response.data;
   },
+  uploadImage: async (imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    const response = await api.post('/api/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export const orderAPI = {

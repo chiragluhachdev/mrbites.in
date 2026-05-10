@@ -36,6 +36,8 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
   
   // Form State
   const [newImage, setNewImage] = useState('');
+  const [newImageFile, setNewImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [newItem, setNewItem] = useState({
     name: '',
@@ -80,15 +82,24 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
   const handleAddItem = async (e) => {
     e.preventDefault();
     try {
-      const item = { ...newItem, price: parseFloat(newItem.price), image: newImage };
+      setUploading(true);
+      let imageUrl = newImage;
+      if (newImageFile) {
+        const uploadRes = await restaurantAPI.uploadImage(newImageFile);
+        imageUrl = uploadRes.url;
+      }
+      const item = { ...newItem, price: parseFloat(newItem.price), image: imageUrl };
       await restaurantAPI.addMenuItem(restaurantId, item);
       setNewItem({ name: '', description: '', price: '', category: 'Main Course', isVeg: true, available: true });
       setNewImage('');
+      setNewImageFile(null);
       setShowAddForm(false);
       loadMenu();
       onMenuChanged && onMenuChanged();
     } catch (err) {
       alert('Failed to add item. Please try again.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -99,9 +110,8 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
 
   const processFile = (file) => {
     if (file.size > 5000000) { alert("File too large (Max 5MB)"); return; }
-    const reader = new FileReader();
-    reader.onload = (event) => setNewImage(event.target.result);
-    reader.readAsDataURL(file);
+    setNewImageFile(file);
+    setNewImage(URL.createObjectURL(file));
   };
 
   const handleToggleAvailability = async (itemId, currentlyAvailable) => {
@@ -281,7 +291,9 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
 
             <div style={styles.drawerFooter}>
               <button type="button" onClick={() => setShowAddForm(false)} style={styles.cancelBtn}>Cancel</button>
-              <button type="submit" onClick={handleAddItem} style={styles.saveBtn} className="btn-primary">Save Item</button>
+              <button type="submit" onClick={handleAddItem} disabled={uploading} style={{...styles.saveBtn, opacity: uploading ? 0.7 : 1}} className="btn-primary">
+                {uploading ? 'Uploading...' : 'Save Item'}
+              </button>
             </div>
           </div>
         </>
