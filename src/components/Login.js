@@ -61,7 +61,7 @@ const Login = ({ onLogin }) => {
           {/* Logo & Header */}
           <div className="text-center mb-5">
             <div className="w-12 h-12 mx-auto bg-brand-50 rounded-xl border border-brand-100 flex items-center justify-center mb-3 overflow-hidden shadow-sm">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Vendor Portal</h2>
             <p className="text-[12px] text-brand-600 font-semibold tracking-[0.1em] uppercase mt-1 opacity-80">
