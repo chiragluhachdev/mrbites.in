@@ -54,7 +54,7 @@ If you have database access, restaurant IDs can be found in the `restaurants` co
 
 ## API
 
-The app connects to the backend API at `https://gocha-backend.onrender.com`. Make sure the backend is running and accessible.
+The app connects to the backend API at `https://mrbites-backend.onrender.com`. Make sure the backend is running and accessible.
 
 ## Technologies Used
 
