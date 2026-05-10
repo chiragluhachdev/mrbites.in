@@ -23,6 +23,10 @@ export const authAPI = {
     const response = await api.post('/api/auth/vendor-login', { restaurantId, passkey });
     return response.data;
   },
+  getAllUsers: async () => {
+    const response = await api.get('/api/users');
+    return response.data;
+  },
   // validateToken: async () => {
   //   const response = await api.get('/api/auth/me');
   //   return response.data;
@@ -30,6 +34,14 @@ export const authAPI = {
 };
 
 export const restaurantAPI = {
+  getAll: async () => {
+    const response = await api.get('/api/restaurants');
+    return response.data;
+  },
+  createRestaurant: async (data) => {
+    const response = await api.post('/api/restaurants', data);
+    return response.data;
+  },
   getDetails: async (restaurantId) => {
     const response = await api.get(`/api/restaurants/${restaurantId}`);
     return response.data;
@@ -53,6 +65,10 @@ export const restaurantAPI = {
 };
 
 export const orderAPI = {
+  getAll: async () => {
+    const response = await api.get('/api/orders');
+    return response.data;
+  },
   getByRestaurant: async (restaurantId) => {
     const response = await api.get(`/api/orders/restaurant/${restaurantId}`);
     return response.data;

@@ -36,7 +36,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
             <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className={`text-xl font-bold tracking-tight ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}>MR-BITES</span>
           </div>
@@ -181,7 +181,7 @@ const Hero = () => {
                         </div>
                       </div>
                       <div className="w-12 h-10 bg-orange-200 rounded-lg overflow-hidden relative z-10 shrink-0">
-                         <img src="/logo.png" alt="" className="w-full h-full object-cover opacity-80 mix-blend-multiply" />
+                         <img src="/image.png" alt="" className="w-full h-full object-cover opacity-80 mix-blend-multiply" />
                          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#056548] rounded-full flex items-center justify-center border border-[#FFF8F1]">
                            <span className="text-white text-[8px] font-bold">→</span>
                          </div>
@@ -317,7 +317,7 @@ const Features = () => {
       color: "bg-blue-100 text-blue-600"
     },
     {
-      icon: <div className="w-10 h-10 overflow-hidden rounded-xl"><img src="/logo.png" alt="" className="w-full h-full object-cover" /></div>,
+      icon: <div className="w-10 h-10 overflow-hidden rounded-xl"><img src="/image.png" alt="" className="w-full h-full object-cover" /></div>,
       title: "No Waiting",
       description: "Get notified when your food is ready. Just walk up to the counter and collect it.",
       color: "bg-brand-100 text-brand-600"
@@ -488,7 +488,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-gray-900">MR-BITES</span>
           </div>

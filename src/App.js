@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
+import AdminDashboard from './components/AdminDashboard';
+import AdminUsers from './components/AdminUsers';
+import AdminAnalytics from './components/AdminAnalytics';
 import { authAPI } from './api';
 
 function App() {
@@ -61,6 +64,9 @@ function App() {
               isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
             }
           />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

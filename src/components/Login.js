@@ -137,9 +137,17 @@ const Login = ({ onLogin }) => {
 
           </form>
 
-          <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-center gap-1.5 text-xs text-gray-400 font-medium">
-            <Lock size={12} className="text-brand-500" />
-            Secure Vendor Access
+          <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col items-center justify-center gap-3">
+            <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
+              <Lock size={12} className="text-brand-500" />
+              Secure Vendor Access
+            </div>
+            <button 
+              onClick={() => navigate('/admin')}
+              className="text-brand-600 text-[11px] font-bold tracking-wider uppercase hover:text-brand-700 transition-colors"
+            >
+              Login as Admin
+            </button>
           </div>
         </div>
       </div>
