@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { restaurantAPI, authAPI } from '../api';
-import { Eye, EyeOff, Plus, Store, Users, LogOut, Loader, Image as ImageIcon, ChevronRight, BarChart2 } from 'lucide-react';
+import { Eye, EyeOff, Plus, Store, Users, LogOut, Loader, ChevronRight, BarChart2 } from 'lucide-react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
