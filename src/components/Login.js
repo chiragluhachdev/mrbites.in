@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, ChevronRight } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
-  const [restaurantId, setRestaurantId] = useState('69dbb73cf01a247deae8c231');
-  const [passkey, setPasskey] = useState('chirag123');
+  const [restaurantId, setRestaurantId] = useState('');
+  const [passkey, setPasskey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);

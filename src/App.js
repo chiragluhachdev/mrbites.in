@@ -64,9 +64,9 @@ function App() {
               isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
             }
           />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
+          <Route path="/admin/users" element={isAuthenticated ? <AdminUsers /> : <Navigate to="/login" />} />
+          <Route path="/admin/analytics" element={isAuthenticated ? <AdminAnalytics /> : <Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

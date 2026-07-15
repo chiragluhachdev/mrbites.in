@@ -27,10 +27,10 @@ export const authAPI = {
     const response = await api.get('/api/users');
     return response.data;
   },
-  // validateToken: async () => {
-  //   const response = await api.get('/api/auth/me');
-  //   return response.data;
-  // },
+  validateToken: async () => {
+    const response = await api.get('/api/auth/me');
+    return response.data;
+  },
 };
 
 export const restaurantAPI = {
