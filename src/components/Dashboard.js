@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import Swal from "sweetalert2";
-import { orderAPI, restaurantAPI } from '../api';
+import { orderAPI, restaurantAPI, authAPI, API_BASE_URL } from '../api';
 import io from 'socket.io-client';
 import MenuManager from './MenuManager';
 import OrderCard from './OrderCard';
+import PosDashboard from './pos/PosDashboard';
 
 // --- Icons ---
 const Icons = {
@@ -18,9 +19,7 @@ const Icons = {
   Chef: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/></svg>
 };
 
-const API_BASE_URL = 'https://mrbites-backend.onrender.com';
-
-const Dashboard = () => {
+const ClassicDashboard = () => {
   const [vendor, setVendor] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -382,5 +381,50 @@ const TabButton = ({ active, onClick, label, count }) => (
     </span>
   </button>
 );
+
+/**
+ * Dispatcher: POS-enabled outlets get the split POS terminal; everyone else
+ * keeps the existing dashboard, entirely unchanged. Deciding here means the
+ * classic dashboard's effects never even mount for a POS vendor.
+ */
+const Dashboard = () => {
+  const [vendor, setVendor] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('vendor') || 'null');
+    } catch {
+      return null;
+    }
+  });
+  const [resolved, setResolved] = useState(false);
+
+  // The stored vendor may predate the posEnabled flag — confirm it with the
+  // server, and persist so the choice is stable on the next load.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await authAPI.validateToken();
+        if (!cancelled && data?.vendor) {
+          setVendor(data.vendor);
+          localStorage.setItem('vendor', JSON.stringify(data.vendor));
+        }
+      } catch {
+        /* keep the cached vendor */
+      } finally {
+        if (!cancelled) setResolved(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Wait for the authoritative flag before choosing, so a POS vendor never
+  // briefly sees the classic dashboard (and vice versa).
+  if (!resolved && vendor?.posEnabled === undefined) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">Loading…</div>;
+  }
+
+  if (vendor?.posEnabled) return <PosDashboard vendor={vendor} />;
+  return <ClassicDashboard />;
+};
 
 export default Dashboard;

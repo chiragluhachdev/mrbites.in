@@ -3,13 +3,18 @@ import { authAPI } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, ChevronRight } from 'lucide-react';
 
-const Login = ({ onLogin }) => {
+// `mode` is decided by the subdomain — admin.mrbites.in serves the admin login,
+// vendor.mrbites.in the vendor one. There is no in-form role switch, because a
+// host only ever offers its own.
+const Login = ({ onLogin, mode }) => {
   const [restaurantId, setRestaurantId] = useState('');
   const [passkey, setPasskey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
+  const isAdmin = mode === 'admin';
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -22,10 +27,21 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const data = await authAPI.vendorLogin(restaurantId, passkey);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('vendor', JSON.stringify(data.vendor));
-      onLogin();
+      if (isAdmin) {
+        const data = await authAPI.adminLogin(passkey);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', 'admin');
+        localStorage.removeItem('vendor');
+        onLogin('admin');
+        navigate('/');
+      } else {
+        const data = await authAPI.vendorLogin(restaurantId, passkey);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('role', 'vendor');
+        localStorage.setItem('vendor', JSON.stringify(data.vendor));
+        onLogin('vendor');
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
@@ -63,28 +79,30 @@ const Login = ({ onLogin }) => {
             <div className="w-12 h-12 mx-auto bg-brand-50 rounded-xl border border-brand-100 flex items-center justify-center mb-3 overflow-hidden shadow-sm">
               <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Vendor Portal</h2>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+              {isAdmin ? 'Admin Console' : 'Vendor Portal'}
+            </h2>
             <p className="text-[12px] text-brand-600 font-semibold tracking-[0.1em] uppercase mt-1 opacity-80">
-              Empowering Campus Flavors
+              {isAdmin ? 'Platform Administration' : 'Empowering Campus Flavors'}
             </p>
           </div>
 
-
-
           <form onSubmit={handleLogin} className="space-y-4">
-            
-            {/* Restaurant ID */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Restaurant ID</label>
-              <input
-                type="text"
-                value={restaurantId}
-                onChange={(e) => setRestaurantId(e.target.value)}
-                required
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all text-gray-800 text-sm font-medium"
-                placeholder="Enter your ID"
-              />
-            </div>
+
+            {/* Restaurant ID — vendors only; admins have no outlet */}
+            {!isAdmin && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Restaurant ID</label>
+                <input
+                  type="text"
+                  value={restaurantId}
+                  onChange={(e) => setRestaurantId(e.target.value)}
+                  required
+                  className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition-all text-gray-800 text-sm font-medium"
+                  placeholder="Enter your ID"
+                />
+              </div>
+            )}
 
             {/* Password */}
             <div>
@@ -137,17 +155,11 @@ const Login = ({ onLogin }) => {
 
           </form>
 
-          <div className="mt-5 pt-4 border-t border-gray-100 flex flex-col items-center justify-center gap-3">
+          <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-center">
             <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium">
               <Lock size={12} className="text-brand-500" />
-              Secure Vendor Access
+              {isAdmin ? 'Secure Admin Access' : 'Secure Vendor Access'}
             </div>
-            <button 
-              onClick={() => navigate('/admin')}
-              className="text-brand-600 text-[11px] font-bold tracking-wider uppercase hover:text-brand-700 transition-colors"
-            >
-              Login as Admin
-            </button>
           </div>
         </div>
       </div>

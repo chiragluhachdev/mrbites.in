@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { portalUrl } from '../portal';
 import { 
   Clock, 
   Store, 
@@ -417,8 +417,6 @@ const HowItWorks = () => {
 };
 
 const Vendors = () => {
-  const navigate = useNavigate();
-
   return (
     <section id="vendors" className="py-24 bg-brand-50">
       <div className="container mx-auto px-4 md:px-6">
@@ -440,7 +438,7 @@ const Vendors = () => {
                 </li>
               ))}
             </ul>
-            <button onClick={() => navigate('/login')} className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-transform hover:-translate-y-1 shadow-md w-max font-medium">
+            <button onClick={() => { window.location.href = portalUrl('vendor', '/login'); }} className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-transform hover:-translate-y-1 shadow-md w-max font-medium">
               Join as Vendor / Login <ChevronRight size={20} />
             </button>
           </div>

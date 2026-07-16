@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://mrbites-backend.onrender.com';
+// Set REACT_APP_API_BASE_URL to point at a deployed backend. Unset, this talks
+// to a backend on the machine serving the page — which is what you want in
+// development, and what a production build must never rely on.
+export const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:4040`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -21,6 +25,10 @@ api.interceptors.request.use((config) => {
 export const authAPI = {
   vendorLogin: async (restaurantId, passkey) => {
     const response = await api.post('/api/auth/vendor-login', { restaurantId, passkey });
+    return response.data;
+  },
+  adminLogin: async (passkey) => {
+    const response = await api.post('/api/auth/admin-login', { passkey });
     return response.data;
   },
   getAllUsers: async () => {
@@ -62,6 +70,10 @@ export const restaurantAPI = {
     const response = await api.put(`/api/restaurants/${id}`, updates);
     return response.data;
   },
+  deleteRestaurant: async (id) => {
+    const response = await api.delete(`/api/restaurants/${id}`);
+    return response.data;
+  },
   uploadImage: async (imageFile) => {
     const formData = new FormData();
     formData.append('image', imageFile);
@@ -74,13 +86,62 @@ export const restaurantAPI = {
   },
 };
 
+const rangeQuery = (from, to) => {
+  const p = new URLSearchParams();
+  if (from) p.set('from', from);
+  if (to) p.set('to', to);
+  const q = p.toString();
+  return q ? `?${q}` : '';
+};
+
+export const financeAPI = {
+  // Vendor tokens are scoped server-side to their own outlet; admins may pass
+  // a restaurantId to inspect any of them.
+  vendor: async ({ from, to, restaurantId } = {}) => {
+    const p = new URLSearchParams();
+    if (from) p.set('from', from);
+    if (to) p.set('to', to);
+    if (restaurantId) p.set('restaurantId', restaurantId);
+    const q = p.toString();
+    const response = await api.get(`/api/finance/vendor${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  admin: async ({ from, to } = {}) => {
+    const response = await api.get(`/api/finance/admin${rangeQuery(from, to)}`);
+    return response.data;
+  },
+  settle: async (restaurantId) => {
+    const response = await api.post('/api/finance/settle', { restaurantId });
+    return response.data;
+  },
+};
+
+export const settingsAPI = {
+  get: async () => {
+    const response = await api.get('/api/settings');
+    return response.data;
+  },
+  update: async (updates) => {
+    const response = await api.put('/api/settings', updates);
+    return response.data;
+  },
+};
+
 export const orderAPI = {
   getAll: async () => {
     const response = await api.get('/api/orders');
     return response.data;
   },
-  getByRestaurant: async (restaurantId) => {
-    const response = await api.get(`/api/orders/restaurant/${restaurantId}`);
+  getByRestaurant: async (restaurantId, { source, limit } = {}) => {
+    const p = new URLSearchParams();
+    if (source) p.set('source', source);
+    if (limit) p.set('limit', String(limit));
+    const q = p.toString();
+    const response = await api.get(`/api/orders/restaurant/${restaurantId}${q ? `?${q}` : ''}`);
+    return response.data;
+  },
+  createPos: async (payload) => {
+    const response = await api.post('/api/orders/pos', payload);
     return response.data;
   },
   updateStatus: async (orderId, status) => {

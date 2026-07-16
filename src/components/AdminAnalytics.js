@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { orderAPI } from '../api';
-import { ArrowLeft, Calendar, Loader, DollarSign, ShoppingBag, Store, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Loader, IndianRupee, ShoppingBag, Store, ChevronDown, ChevronUp } from 'lucide-react';
 
 const AdminAnalytics = () => {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -78,23 +76,14 @@ const AdminAnalytics = () => {
   }, [filteredOrders]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-10">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 sticky top-0 z-40 shadow-sm">
-        <button 
-          onClick={() => navigate('/admin')}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Analytics & Reports</h1>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">Day-wise order details</p>
-        </div>
-      </header>
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-6xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Analytics</h1>
+        <p className="text-sm text-gray-500 font-medium mt-0.5">Day-wise order details by outlet</p>
+      </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
-        
+      <div>
+
         {/* Controls Row */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3 text-gray-700 font-semibold">
@@ -132,8 +121,8 @@ const AdminAnalytics = () => {
               </div>
 
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-                  <DollarSign size={24} />
+                <div className="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center text-brand-600">
+                  <IndianRupee size={24} />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Revenue</p>
@@ -230,7 +219,7 @@ const AdminAnalytics = () => {
             </div>
           </>
         )}
-      </main>
+      </div>
     </div>
   );
 };

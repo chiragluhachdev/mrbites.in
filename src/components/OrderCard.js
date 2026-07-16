@@ -172,7 +172,14 @@ const OrderCard = ({ order, onStatusUpdate, activeTab }) => {
             <div key={index} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem', alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <span style={{ fontWeight: '600', color: '#374151', minWidth: '20px' }}>{item.qty}x</span>
-                <span style={{ color: '#4b5563', lineHeight: '1.4' }}>{item.name}</span>
+                <div style={{ lineHeight: '1.4' }}>
+                  <span style={{ color: '#4b5563' }}>{item.name}</span>
+                  {(item.modifiers || []).length > 0 && (
+                    <div style={{ fontSize: '0.75rem', color: '#059669', fontWeight: 600, marginTop: '2px' }}>
+                      {item.modifiers.map((m) => m.name).join(' · ')}
+                    </div>
+                  )}
+                </div>
               </div>
               <span style={{ color: '#1f2937', fontWeight: '600' }}>{formatCurrency((item.price || 0) * (item.qty || 0))}</span>
             </div>
@@ -198,7 +205,7 @@ const OrderCard = ({ order, onStatusUpdate, activeTab }) => {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.75rem', color: '#6b7280', fontWeight: '600', letterSpacing: '0.025em', marginBottom: '1px' }}>
             <Icons.Clock />
-            <span>{(order.pickupType || 'pickup').toUpperCase()}</span>
+            <span>{order.pickupType === 'DINE_IN' ? 'DINE IN' : 'PICK UP'}</span>
           </div>
           {order.scheduledAt && (
              <span style={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: '600', marginLeft: '20px' }}>Due: {formatTime(order.scheduledAt)}</span>

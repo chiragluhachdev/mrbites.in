@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { restaurantAPI } from '../api';
+import ModifierEditor from './ModifierEditor';
 
 // --- Unified Brand Colors ---
 const COLORS = {
@@ -31,6 +32,7 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [modifierItem, setModifierItem] = useState(null);
   
   // Form State
   const [newImage, setNewImage] = useState('');
@@ -200,10 +202,11 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
                 </div>
 
                 {filteredItems.map(item => (
-                  <MenuCard 
-                    key={item.id || item._id} 
-                    item={item} 
+                  <MenuCard
+                    key={item.id || item._id}
+                    item={item}
                     onToggle={handleToggleAvailability}
+                    onEditModifiers={setModifierItem}
                   />
                 ))}
               </>
@@ -288,13 +291,26 @@ const MenuManager = ({ restaurantId, onClose, onMenuChanged }) => {
           </div>
         </>
       )}
+
+      {/* --- Modifier Editor Drawer --- */}
+      {modifierItem && (
+        <ModifierEditor
+          item={modifierItem}
+          onClose={() => setModifierItem(null)}
+          onSaved={() => {
+            loadMenu();
+            onMenuChanged && onMenuChanged();
+          }}
+        />
+      )}
     </div>
   );
 };
 
 // --- Sub-Component: Menu Card ---
-const MenuCard = ({ item, onToggle }) => {
+const MenuCard = ({ item, onToggle, onEditModifiers }) => {
   const isAvailable = item.available;
+  const groupCount = (item.modifiers || []).length;
 
   return (
     <div style={styles.card} className="card-hover">
@@ -320,10 +336,26 @@ const MenuCard = ({ item, onToggle }) => {
         </div>
       </div>
 
+      <div style={styles.cardOptionsRow}>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEditModifiers(item);
+          }}
+          style={styles.optionsBtn}
+          className="btn-icon"
+        >
+          <span>Options</span>
+          <span style={{ ...styles.optionsCount, ...(groupCount ? styles.optionsCountActive : null) }}>
+            {groupCount || 'none'}
+          </span>
+        </button>
+      </div>
+
       <div style={styles.cardFooter}>
         <span style={styles.categoryTag}>{item.category}</span>
-        
-        <button 
+
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onToggle(item.id || item._id, item.available);
@@ -425,6 +457,18 @@ const styles = {
     backgroundColor: COLORS.surface
   },
   categoryTag: { fontSize: '0.75rem', fontWeight: 600, color: COLORS.textSecondary, backgroundColor: COLORS.background, padding: '4px 8px', borderRadius: 4 },
+  cardOptionsRow: { padding: '0 1rem 0.75rem' },
+  optionsBtn: {
+    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '0.5rem 0.75rem', borderRadius: 8, border: `1px solid ${COLORS.border}`,
+    backgroundColor: COLORS.surface, color: COLORS.textSecondary,
+    fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+  },
+  optionsCount: {
+    fontSize: '0.7rem', fontWeight: 700, padding: '2px 6px', borderRadius: 4,
+    backgroundColor: COLORS.background, color: COLORS.textSecondary,
+  },
+  optionsCountActive: { backgroundColor: COLORS.primaryLight, color: COLORS.primary },
   statusToggle: {
     padding: '6px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600,
     cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, border: 'none',

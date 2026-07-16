@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../api';
-import { Users, ArrowLeft, Loader, Search } from 'lucide-react';
+import { Users, Loader, Search } from 'lucide-react';
 
 const AdminUsers = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,21 +29,13 @@ const AdminUsers = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-10">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4 sticky top-0 z-40">
-        <button 
-          onClick={() => navigate('/admin')}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">All Users</h1>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">Manage platform users</p>
-        </div>
-      </header>
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-5xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">Users</h1>
+        <p className="text-sm text-gray-500 font-medium mt-0.5">Everyone registered on the platform</p>
+      </div>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 mt-8">
+      <div>
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <div className="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-3">
@@ -107,7 +97,7 @@ const AdminUsers = () => {
             </table>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
