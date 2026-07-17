@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { restaurantAPI, financeAPI } from '../api';
 import ImagePicker from './ImagePicker';
-import { Loader, Store, Landmark, KeyRound, Eye, EyeOff, Check, Image as ImageIcon } from 'lucide-react';
+import { Loader, Store, Landmark, KeyRound, Eye, EyeOff, Check, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 
 const Section = ({ icon: Icon, title, description, children }) => (
   <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
@@ -44,6 +44,11 @@ const VendorSettings = () => {
     waitTime: '',
     isOpen: true,
   });
+  // The admin's override, and why. Set by MR-Bites, never writable from here —
+  // it wins over the vendor's own isOpen switch.
+  const [adminClosed, setAdminClosed] = useState(false);
+  const [adminClosedReason, setAdminClosedReason] = useState('');
+
   const [payout, setPayout] = useState({ accountHolder: '', bankName: '', ifsc: '', pan: '', accountNumber: '' });
   const [last4, setLast4] = useState('');
   const [passkey, setPasskey] = useState('');
@@ -82,6 +87,9 @@ const VendorSettings = () => {
         waitTime: String(r.waitTime ?? ''),
         isOpen: r.isOpen !== false,
       });
+      // Read-only here: the API rejects a vendor writing either of these.
+      setAdminClosed(r.adminClosed === true);
+      setAdminClosedReason(r.adminClosedReason || '');
       setCardPreview(r.image || '');
       // Show the card image as the banner's stand-in when none is set, since
       // that is exactly what students currently see.
@@ -213,6 +221,9 @@ const VendorSettings = () => {
     );
   }
 
+  // What a student actually sees — both switches, most restrictive wins.
+  const acceptingOrders = outlet.isOpen && !adminClosed;
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto">
       <div className="mb-6">
@@ -226,31 +237,66 @@ const VendorSettings = () => {
         </div>
       )}
 
-      {/* Open / closed */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mb-6 flex items-center justify-between gap-4">
-        <div>
-          <p className="font-bold text-gray-900">Accepting orders</p>
-          <p className="text-xs text-gray-500 font-medium mt-0.5">
-            {outlet.isOpen
-              ? 'Students can order from you right now.'
-              : 'Your menu is visible but nobody can order.'}
-          </p>
-        </div>
-        <button
-          onClick={toggleOpen}
-          disabled={saving === 'open'}
-          className={`relative w-14 h-7 rounded-full transition-colors shrink-0 disabled:opacity-60 ${
-            outlet.isOpen ? 'bg-brand-600' : 'bg-gray-300'
-          }`}
-          aria-pressed={outlet.isOpen}
-          aria-label="Toggle accepting orders"
-        >
-          <span
-            className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-              outlet.isOpen ? 'translate-x-8' : 'translate-x-1'
+      {/* Open / closed.
+          Two switches decide whether students can order: this one, and an admin
+          override the vendor cannot touch. Without saying so, an admin closing
+          the outlet would leave this toggle reading "on" while nobody could
+          order — which looks exactly like the app being broken. */}
+      <div
+        className={`bg-white border rounded-xl shadow-sm mb-6 overflow-hidden ${
+          adminClosed ? 'border-amber-300' : 'border-gray-200'
+        }`}
+      >
+        <div className="p-5 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-bold text-gray-900">Accepting orders</p>
+              <span
+                className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md ${
+                  acceptingOrders ? 'bg-brand-50 text-brand-700' : 'bg-red-50 text-red-600'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${acceptingOrders ? 'bg-brand-500' : 'bg-red-500'}`} />
+                {acceptingOrders ? 'Live' : 'Not taking orders'}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 font-medium mt-1">
+              {adminClosed
+                ? 'Paused by MR-Bites — your own switch has no effect until that is lifted.'
+                : outlet.isOpen
+                ? 'Students can order from you right now.'
+                : 'Your menu is visible but nobody can order.'}
+            </p>
+          </div>
+          <button
+            onClick={toggleOpen}
+            disabled={saving === 'open' || adminClosed}
+            className={`relative w-14 h-7 rounded-full transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
+              outlet.isOpen ? 'bg-brand-600' : 'bg-gray-300'
             }`}
-          />
-        </button>
+            aria-pressed={outlet.isOpen}
+            aria-label="Toggle accepting orders"
+            title={adminClosed ? 'Paused by MR-Bites' : undefined}
+          >
+            <span
+              className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                outlet.isOpen ? 'translate-x-8' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {adminClosed && (
+          <div className="flex items-start gap-2.5 px-5 py-3 bg-amber-50 border-t border-amber-200">
+            <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-amber-800">MR-Bites has paused your outlet</p>
+              <p className="text-xs text-amber-700 font-medium mt-0.5">
+                {adminClosedReason || 'Contact MR-Bites to have this lifted.'}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <Section

@@ -27,6 +27,8 @@ const OutletEditor = ({ outlet, onClose, onSaved }) => {
     rating: String(outlet.rating ?? 4.5),
     ratingEnabled: outlet.ratingEnabled !== false,
     posEnabled: outlet.posEnabled === true,
+    adminClosed: outlet.adminClosed === true,
+    adminClosedReason: outlet.adminClosedReason || '',
     contactName: outlet.contactName || '',
     contactPhone: outlet.contactPhone || '',
     contactEmail: outlet.contactEmail || '',
@@ -88,6 +90,9 @@ const OutletEditor = ({ outlet, onClose, onSaved }) => {
         rating: Number(form.rating) || 0,
         ratingEnabled: form.ratingEnabled,
         posEnabled: form.posEnabled,
+        adminClosed: form.adminClosed,
+        // Cleared alongside the flag, so a stale reason can't outlive the pause.
+        adminClosedReason: form.adminClosed ? form.adminClosedReason.trim() : '',
         image: card ? card.url : outlet.image,
         // Blank means "keep the stored number" — sending '' would erase it.
         payout: accountNumber.trim() ? { ...payoutRest, accountNumber: accountNumber.trim() } : payoutRest,
@@ -249,6 +254,39 @@ const OutletEditor = ({ outlet, onClose, onSaved }) => {
               <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${form.posEnabled ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
             </button>
           </label>
+
+          {/* The admin override. Deliberately separate from the vendor's own
+              isOpen switch: sharing one flag meant a force-close lasted only
+              until the vendor flipped it back, which made it no control at all.
+              This one the vendor can see but cannot write. */}
+          <label className="flex items-center justify-between gap-4 py-2 border-t border-gray-100 pt-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Force closed</p>
+              <p className="text-xs text-gray-400 font-medium">
+                Stops this outlet taking orders and overrides the vendor's own switch. They see the reason below.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set({ adminClosed: !form.adminClosed })}
+              className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${form.adminClosed ? 'bg-red-600' : 'bg-gray-300'}`}
+              aria-pressed={form.adminClosed}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${form.adminClosed ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+            </button>
+          </label>
+
+          {form.adminClosed && (
+            <Field label="Reason shown to the vendor" hint="Leave blank and they are simply told to contact MR-Bites.">
+              <input
+                value={form.adminClosedReason}
+                onChange={(e) => set({ adminClosedReason: e.target.value })}
+                placeholder="e.g. Hygiene review pending"
+                className={inputClass}
+                maxLength={140}
+              />
+            </Field>
+          )}
 
           <div className="pt-2 border-t border-gray-100">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Contact</p>

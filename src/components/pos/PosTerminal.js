@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Plus, Minus, Trash2, StickyNote, Loader, Utensils } from 'lucide-react';
 import { rupees } from '../../format';
+import PosModifierPicker, { itemNeedsModifiers } from './PosModifierPicker';
 
 const PAYMENT_METHODS = [
   { id: 'cash', label: 'Cash' },
@@ -9,9 +10,11 @@ const PAYMENT_METHODS = [
   { id: 'other', label: 'Other' },
 ];
 
-// A cart line's identity: item + the exact options chosen (POS items are usually
-// plain, so this is just the item id).
-const lineKeyFor = (item) => String(item.id);
+// A cart line's identity: the item plus the exact options chosen. Two cups of
+// the same coffee with different add-ons are different lines; two identical ones
+// stack onto the same line.
+const lineKeyFor = (item, modifiers = []) =>
+  [String(item.id), ...modifiers.map((m) => `${m.group}:${m.name}`)].join('|');
 
 /**
  * The 75% counter POS: search + category rail + menu grid on the left, the live
@@ -24,6 +27,7 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
   const [payment, setPayment] = useState('cash');
   const [customer, setCustomer] = useState('');
   const [noteFor, setNoteFor] = useState(null); // lineKey whose note field is open
+  const [modItem, setModItem] = useState(null); // item awaiting customization
   const [submitting, setSubmitting] = useState(false);
 
   const categories = useMemo(() => ['All', ...sections.map((s) => s.title)], [sections]);
@@ -38,13 +42,22 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
     );
   }, [sections, activeCat, query]);
 
-  const addItem = (item) => {
-    const key = lineKeyFor(item);
+  // Adds a line at the given unit price (modifier deltas already folded in).
+  const addItem = (item, modifiers = [], unitPrice) => {
+    const key = lineKeyFor(item, modifiers);
+    const price = unitPrice == null ? item.price : unitPrice;
     setCart((prev) => {
       const found = prev.find((l) => l.key === key);
       if (found) return prev.map((l) => (l.key === key ? { ...l, qty: l.qty + 1 } : l));
-      return [...prev, { key, id: item.id, name: item.name, price: item.price, qty: 1, note: '' }];
+      return [...prev, { key, id: item.id, name: item.name, price, qty: 1, note: '', modifiers }];
     });
+  };
+
+  // A tap on the grid: customizable items open the sheet first, plain ones drop
+  // straight into the bill.
+  const pickItem = (item) => {
+    if (itemNeedsModifiers(item)) setModItem(item);
+    else addItem(item);
   };
 
   const changeQty = (key, delta) =>
@@ -62,7 +75,14 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
     setSubmitting(true);
     try {
       await onComplete({
-        items: cart.map((l) => ({ itemId: l.id, name: l.name, price: l.price, qty: l.qty, note: l.note || undefined })),
+        items: cart.map((l) => ({
+          itemId: l.id,
+          name: l.name,
+          price: l.price,
+          qty: l.qty,
+          note: l.note || undefined,
+          modifiers: l.modifiers && l.modifiers.length ? l.modifiers : undefined,
+        })),
         posPaymentMethod: payment,
         customer: customer.trim() ? { name: customer.trim() } : undefined,
       });
@@ -91,8 +111,9 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
         </div>
 
         <div className="flex flex-1 min-h-0">
-          {/* Category rail */}
-          <div className="w-32 shrink-0 border-r border-gray-200 bg-white overflow-y-auto">
+          {/* Category rail — narrower on tablets, where every pixel the chrome
+              takes comes straight out of the menu grid. */}
+          <div className="w-24 xl:w-32 shrink-0 border-r border-gray-200 bg-white overflow-y-auto">
             {categories.map((c) => (
               <button
                 key={c}
@@ -120,11 +141,15 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
                 <p className="text-sm font-medium">No items here</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              // Column count follows the space the grid actually has, not the
+              // window: the bill and the online rail sit beside it, so a tablet's
+              // "md" is far narrower here than the breakpoint implies. Three
+              // columns only from xl, where the room genuinely exists.
+              <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                 {items.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => addItem(item)}
+                    onClick={() => pickItem(item)}
                     className="bg-white border border-gray-200 rounded-xl overflow-hidden text-left hover:border-brand-400 hover:shadow-md transition-all group"
                   >
                     <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
@@ -138,7 +163,14 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
                     </div>
                     <div className="p-2.5">
                       <p className="text-sm font-semibold text-gray-900 leading-tight line-clamp-2">{item.name}</p>
-                      <p className="text-sm font-bold text-brand-700 mt-1">{rupees(item.price)}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <p className="text-sm font-bold text-brand-700">{rupees(item.price)}</p>
+                        {itemNeedsModifiers(item) && (
+                          <span className="text-[9px] font-bold uppercase tracking-wide text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">
+                            Options
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -149,7 +181,7 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
       </div>
 
       {/* Bill side */}
-      <div className="w-[340px] shrink-0 border-l border-gray-200 bg-white flex flex-col h-full">
+      <div className="w-[280px] xl:w-[340px] shrink-0 border-l border-gray-200 bg-white flex flex-col h-full">
         <div className="shrink-0 px-4 py-3 border-b border-gray-200">
           <h2 className="font-bold text-gray-900">Current Sale</h2>
           <p className="text-xs text-gray-400 font-medium">{outletName} · counter</p>
@@ -168,7 +200,12 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-gray-900 leading-tight">{l.name}</p>
-                    <p className="text-xs text-gray-400">{rupees(l.price)} each</p>
+                    {l.modifiers && l.modifiers.length > 0 && (
+                      <p className="text-[11px] text-gray-500 leading-snug mt-0.5">
+                        {l.modifiers.map((m) => m.name).join(' · ')}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-0.5">{rupees(l.price)} each</p>
                   </div>
                   <span className="text-sm font-bold text-gray-900 tabular-nums">{rupees(l.price * l.qty)}</span>
                 </div>
@@ -257,6 +294,17 @@ const PosTerminal = ({ outletName, sections, loading, onComplete }) => {
           </div>
         </div>
       </div>
+
+      {modItem && (
+        <PosModifierPicker
+          item={modItem}
+          onCancel={() => setModItem(null)}
+          onAdd={({ modifiers, price }) => {
+            addItem(modItem, modifiers, price);
+            setModItem(null);
+          }}
+        />
+      )}
     </div>
   );
 };

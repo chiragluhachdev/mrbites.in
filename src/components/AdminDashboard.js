@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { restaurantAPI, authAPI, orderAPI } from '../api';
+import { dayKey, formatDayKey } from '../format';
 import AdminTrendChart from './AdminTrendChart';
 import OutletEditor from './OutletEditor';
 import {
@@ -17,12 +18,11 @@ import {
   X,
 } from 'lucide-react';
 
-// Local calendar day (not UTC) — the platform runs in one timezone and admins
-// think in local days.
-const localDayKey = (date) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// The business day is an IST day, and `dayKey` in format.js is the one place
+// that decides what that means — for the backend too. A second copy here read
+// the admin's own machine clock, so an admin travelling would bucket revenue
+// into different days than the finance API did.
+const localDayKey = dayKey;
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -84,12 +84,11 @@ const AdminDashboard = () => {
     // Seven day buckets, oldest first, including days with no orders.
     const days = [];
     for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+      const key = localDayKey(new Date(Date.now() - i * 24 * 60 * 60 * 1000));
       days.push({
-        key: localDayKey(d),
-        label: d.toLocaleDateString(undefined, { weekday: 'short' }),
-        fullLabel: d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+        key,
+        label: formatDayKey(key, { weekday: 'short' }),
+        fullLabel: formatDayKey(key, { day: 'numeric', month: 'short' }),
         orders: 0,
         revenue: 0,
       });
@@ -321,6 +320,11 @@ const AdminDashboard = () => {
                     <div className="flex-1 min-w-[140px]">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-bold text-gray-900 truncate">{r.name}</h3>
+                        {/* `isOpen` here is the effective state — the API folds
+                            in the platform pause and the admin override — so on
+                            its own it says an outlet is shut without saying who
+                            shut it. The badge below names the cause when it is
+                            us, since that is the only one an admin can undo. */}
                         <span
                           className={`px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide ${
                             r.isOpen ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-500'
@@ -328,6 +332,14 @@ const AdminDashboard = () => {
                         >
                           {r.isOpen ? 'OPEN' : 'CLOSED'}
                         </span>
+                        {r.adminClosed && (
+                          <span
+                            className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-red-50 text-red-600"
+                            title={r.adminClosedReason || 'Force closed by MR-Bites'}
+                          >
+                            PAUSED BY US
+                          </span>
+                        )}
                         {r.posEnabled && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide bg-indigo-50 text-indigo-700">
                             POS

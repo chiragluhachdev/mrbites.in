@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Swal from "sweetalert2";
 import { orderAPI, restaurantAPI, authAPI, API_BASE_URL } from '../api';
@@ -19,7 +20,7 @@ const Icons = {
   Chef: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/></svg>
 };
 
-const ClassicDashboard = () => {
+const ClassicDashboard = ({ openSidebar }) => {
   const [vendor, setVendor] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -82,10 +83,18 @@ const ClassicDashboard = () => {
       loadOrders(vendor.restaurantId);
       loadRestaurant(vendor.restaurantId);
 
-      const socket = io(API_BASE_URL, { reconnection: true, reconnectionDelay: 1000 });
+      // The outlet's room carries live customer details, so the server only
+      // admits a vendor token for this outlet — hence auth on the handshake.
+      const socket = io(API_BASE_URL, {
+        reconnection: true,
+        reconnectionDelay: 1000,
+        auth: { token: localStorage.getItem('token') },
+      });
 
       socket.on('connect', () => {
-        socket.emit('joinRestaurant', vendor.restaurantId);
+        socket.emit('joinRestaurant', vendor.restaurantId, (ack) => {
+          if (ack && !ack.ok) console.error('Live orders unavailable:', ack.message);
+        });
       });
 
       socket.on('order.created', (payload) => {
@@ -205,6 +214,16 @@ const ClassicDashboard = () => {
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-4">
           {/* Brand & Restaurant Info */}
           <div className="flex items-center gap-3 min-w-0">
+            {openSidebar && (
+              <button
+                onClick={openSidebar}
+                className="p-2 -ml-1 text-gray-600 hover:bg-gray-100 rounded-lg shrink-0"
+                aria-label="Open navigation"
+                title="Menu"
+              >
+                <Icons.Menu />
+              </button>
+            )}
             <div className="relative shrink-0">
               {restaurant?.image ? (
                 <img src={restaurant.image} alt={restaurant.name} className="w-10 h-10 md:w-16 md:h-16 rounded-xl object-cover shadow-sm border-2 border-white" />
@@ -388,6 +407,8 @@ const TabButton = ({ active, onClick, label, count }) => (
  * classic dashboard's effects never even mount for a POS vendor.
  */
 const Dashboard = () => {
+  const outlet = useOutletContext();
+  const openSidebar = outlet?.openSidebar;
   const [vendor, setVendor] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('vendor') || 'null');
@@ -423,8 +444,8 @@ const Dashboard = () => {
     return <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">Loading…</div>;
   }
 
-  if (vendor?.posEnabled) return <PosDashboard vendor={vendor} />;
-  return <ClassicDashboard />;
+  if (vendor?.posEnabled) return <PosDashboard vendor={vendor} openSidebar={openSidebar} />;
+  return <ClassicDashboard openSidebar={openSidebar} />;
 };
 
 export default Dashboard;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { financeAPI, orderAPI } from '../api';
 import AdminTrendChart from './AdminTrendChart';
-import { rupees, rupeesShort, dayKey } from '../format';
+import { rupees, rupeesShort, dayKey, formatDayKey } from '../format';
 import { ShoppingBag, IndianRupee, TrendingUp, Loader, RefreshCw, Utensils } from 'lucide-react';
 
 const StatCard = ({ icon: Icon, label, value, hint, tone }) => (
@@ -25,15 +25,16 @@ const VendorAnalytics = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async (span) => {
-    // Build the window locally so buckets line up with the vendor's calendar.
+    // Buckets are IST days, and the labels are derived from the same key that
+    // identifies them — so a bar can never be titled a different day than the
+    // data it holds.
     const buckets = [];
     for (let i = span - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
+      const key = dayKey(new Date(Date.now() - i * 24 * 60 * 60 * 1000));
       buckets.push({
-        key: dayKey(d),
-        label: d.toLocaleDateString('en-IN', span > 7 ? { day: 'numeric' } : { weekday: 'short' }),
-        fullLabel: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
+        key,
+        label: formatDayKey(key, span > 7 ? { day: 'numeric' } : { weekday: 'short' }),
+        fullLabel: formatDayKey(key, { day: 'numeric', month: 'short' }),
         orders: 0,
         revenue: 0,
       });

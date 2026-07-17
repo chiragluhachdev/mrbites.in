@@ -7,6 +7,7 @@ import VendorLayout from './components/VendorLayout';
 import VendorFinance from './components/VendorFinance';
 import VendorAnalytics from './components/VendorAnalytics';
 import VendorSettings from './components/VendorSettings';
+import PosSales from './components/pos/PosSales';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './components/AdminDashboard';
 import AdminUsers from './components/AdminUsers';
@@ -105,6 +106,7 @@ function App() {
             />
             <Route element={isAuthenticated ? <VendorLayout /> : <Navigate to="/login" />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/pos-sales" element={<PosSales />} />
               <Route path="/finance" element={<VendorFinance />} />
               <Route path="/analytics" element={<VendorAnalytics />} />
               <Route path="/settings" element={<VendorSettings />} />

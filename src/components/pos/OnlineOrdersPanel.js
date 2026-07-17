@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Clock, ChevronRight, ShoppingBag, X } from 'lucide-react';
 import { rupees } from '../../format';
 
 const STATUS_STYLE = {
@@ -76,12 +76,15 @@ const OrderMini = ({ order, onOpen, onAdvance, busy }) => {
 };
 
 /** The 25% live online-orders rail. */
-const OnlineOrdersPanel = ({ orders, onOpen, onAdvance, busyId }) => {
+const OnlineOrdersPanel = ({ orders, onOpen, onAdvance, busyId, onClose }) => {
   const live = orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled');
   const done = orders.filter((o) => o.status === 'delivered' || o.status === 'cancelled').slice(0, 8);
 
   return (
-    <aside className="w-[26%] min-w-[280px] max-w-[380px] bg-gray-50 border-l border-gray-200 flex flex-col h-full">
+    // Full width inside its container: on a wide desktop the container is the
+    // 26% rail, and on a tablet it is the slide-over the dashboard puts this in.
+    // Sizing lives with the parent so this component doesn't need to know which.
+    <aside className="w-full bg-gray-50 border-l border-gray-200 flex flex-col h-full">
       <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
@@ -90,9 +93,20 @@ const OnlineOrdersPanel = ({ orders, onOpen, onAdvance, busyId }) => {
           </span>
           <h2 className="font-bold text-gray-900 text-sm">Live Online Orders</h2>
         </div>
-        <span className="text-xs font-bold text-white bg-brand-600 rounded-full px-2 py-0.5 tabular-nums">
-          {live.length}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-white bg-brand-600 rounded-full px-2 py-0.5 tabular-nums">
+            {live.length}
+          </span>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="xl:hidden p-1 -mr-1 text-gray-400 hover:text-gray-600 rounded"
+              aria-label="Close online orders"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5">

@@ -7,17 +7,21 @@ export const rupees = (n) =>
 /** ₹1,234 — for dense tables and chart axes where decimals are noise. */
 export const rupeesShort = (n) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
 
-/** Local calendar day as YYYY-MM-DD. Never toISOString — that shifts by timezone. */
-export const dayKey = (date = new Date()) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// MR-Bites runs on one campus in India, so the business day is an IST day.
+//
+// These used to read the *browser's* clock. A vendor whose laptop was on the
+// wrong timezone — or an admin checking takings from anywhere else — would see a
+// different "Today" than the backend computed, and the numbers would not
+// reconcile. Both sides now pin to Asia/Kolkata, so the day means the same thing
+// everywhere. India has no DST, so the fixed offset is exact.
+export const BUSINESS_TIMEZONE = 'Asia/Kolkata';
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
 
-const shiftDays = (n) => {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return dayKey(d);
-};
+/** The IST calendar day a moment falls on, as YYYY-MM-DD. */
+export const dayKey = (date = new Date()) =>
+  new Date(new Date(date).getTime() + IST_OFFSET_MS).toISOString().slice(0, 10);
+
+const shiftDays = (n) => dayKey(new Date(Date.now() - n * 24 * 60 * 60 * 1000));
 
 /** The presets above the finance screens. Each returns { from, to } day keys. */
 export const RANGE_PRESETS = [
@@ -35,14 +39,32 @@ export const RANGE_PRESETS = [
   },
 ];
 
+/**
+ * Formats an IST day key (YYYY-MM-DD) for display.
+ *
+ * The key already *is* the IST date, so it is rendered as UTC deliberately —
+ * that prints the digits the key contains instead of shifting them a second
+ * time. Chart labels must come through here rather than off a Date built from
+ * the browser clock, or a label can name a different day than its own key.
+ */
+export const formatDayKey = (key, options) =>
+  new Date(`${key}T00:00:00Z`).toLocaleDateString('en-IN', { ...options, timeZone: 'UTC' });
+
+// Rendered in IST for the same reason the day keys are: an order placed at
+// 9pm on campus must read "9pm" to everyone looking at it, not shift with the
+// viewer's machine.
 export const formatDay = (key) =>
-  new Date(`${key}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  formatDayKey(key, { day: 'numeric', month: 'short', year: 'numeric' });
 
 export const formatTime = (iso) =>
-  new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  new Date(iso).toLocaleTimeString('en-IN', {
+    hour: '2-digit', minute: '2-digit', timeZone: BUSINESS_TIMEZONE,
+  });
 
 export const formatDateTime = (iso) =>
-  `${new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}, ${formatTime(iso)}`;
+  `${new Date(iso).toLocaleDateString('en-IN', {
+    day: 'numeric', month: 'short', timeZone: BUSINESS_TIMEZONE,
+  })}, ${formatTime(iso)}`;
 
 /** Downloads rows as a CSV file. `columns` is [{ key, label }]. */
 export const downloadCsv = (filename, columns, rows) => {
