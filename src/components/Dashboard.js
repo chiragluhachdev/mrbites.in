@@ -7,6 +7,7 @@ import io from 'socket.io-client';
 import MenuManager from './MenuManager';
 import OrderCard from './OrderCard';
 import PosDashboard from './pos/PosDashboard';
+import { useVendorAlarm } from '../hooks/useVendorAlarm';
 
 // --- Icons ---
 const Icons = {
@@ -28,22 +29,8 @@ const ClassicDashboard = ({ openSidebar }) => {
   const [activeTab, setActiveTab] = useState('incoming');
   const [showMenuManager, setShowMenuManager] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [userHasInteracted, setUserHasInteracted] = useState(false);
-  
-  // Audio state
-  const [unacknowledgedIds, setUnacknowledgedIds] = useState(new Set());
-  const alarmAudio = useRef(new Audio('/NewOrder.mp3'));
 
-  useEffect(() => {
-    // Only loop and play if the user has interacted and there are unacknowledged orders
-    if (unacknowledgedIds.size > 0 && userHasInteracted) {
-      alarmAudio.current.loop = true;
-      alarmAudio.current.play().catch(() => {});
-    } else {
-      alarmAudio.current.pause();
-      alarmAudio.current.currentTime = 0;
-    }
-  }, [unacknowledgedIds, userHasInteracted]);
+  const { addUnacknowledged, removeUnacknowledged, playInteractionSound } = useVendorAlarm();
 
   const TABS = ['incoming', 'cancelled', 'ready', 'completed'];
 
@@ -53,15 +40,6 @@ const ClassicDashboard = ({ openSidebar }) => {
     if (storedVendor) {
       setVendor(JSON.parse(storedVendor));
     }
-  }, []);
-
-  useEffect(() => {
-    const handleUserInteraction = () => {
-      setUserHasInteracted(true);
-      document.removeEventListener('click', handleUserInteraction);
-    };
-    document.addEventListener('click', handleUserInteraction);
-    return () => document.removeEventListener('click', handleUserInteraction);
   }, []);
 
   const loadOrders = useCallback(async (restaurantId) => {
@@ -86,12 +64,6 @@ const ClassicDashboard = ({ openSidebar }) => {
       console.error('Failed to load restaurant', err);
     }
   }, []);
-
-  const playNotificationSound = useCallback(() => {
-    if (!userHasInteracted) return;
-    const audio = new Audio('/beep.mp3');
-    audio.play().catch(e => console.log("Audio play failed", e));
-  }, [userHasInteracted]);
 
   useEffect(() => {
     if (vendor?.restaurantId) {
@@ -124,41 +96,28 @@ const ClassicDashboard = ({ openSidebar }) => {
           status: 'pending'
         };
         setOrders(prev => [newOrder, ...prev]);
-        setUnacknowledgedIds(prev => new Set(prev).add(newOrder._id));
+        addUnacknowledged(newOrder._id);
         const suffix = newOrder._id ? String(newOrder._id).slice(-4) : '----';
         setNotification(`New Order #${suffix}`);
-        playNotificationSound();
         setTimeout(() => setNotification(null), 4000);
       });
 
       socket.on('order.statusChanged', ({ orderId, status }) => {
         setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
-        setUnacknowledgedIds(prev => {
-          const next = new Set(prev);
-          next.delete(orderId);
-          return next;
-        });
+        removeUnacknowledged(orderId);
       });
 
       return () => socket.disconnect();
     }
-  }, [vendor?.restaurantId, loadOrders, loadRestaurant, playNotificationSound]);
+  }, [vendor?.restaurantId, loadOrders, loadRestaurant, addUnacknowledged, removeUnacknowledged]);
 
   const handleStatusUpdate = async (orderId, status) => {
     try {
-      // Play different sounds for feedback
-      if (status === 'ready') new Audio('/click.mp3').play().catch(() => {});
-      else if (status === 'preparing') new Audio('/click.mp3').play().catch(() => {});
-      else if (status === 'cancelled') new Audio('/error.mp3').play().catch(() => {});
-      else new Audio('/success.mp3').play().catch(() => {});
+      playInteractionSound(status);
 
       await orderAPI.updateStatus(orderId, status);
       setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
-      setUnacknowledgedIds(prev => {
-        const next = new Set(prev);
-        next.delete(orderId);
-        return next;
-      });
+      removeUnacknowledged(orderId);
 
       const titleMap = {
         preparing: 'Order Accepted — Preparing',
@@ -365,16 +324,7 @@ const ClassicDashboard = ({ openSidebar }) => {
                   key={order._id} 
                   order={order} 
                   onStatusUpdate={handleStatusUpdate}
-                  onAcknowledge={() => {
-                    setUnacknowledgedIds(prev => {
-                      if (prev.has(order._id)) {
-                        const next = new Set(prev);
-                        next.delete(order._id);
-                        return next;
-                      }
-                      return prev;
-                    });
-                  }}
+                  onAcknowledge={() => removeUnacknowledged(order._id)}
                   activeTab={activeTab} 
                 />
                   </div>

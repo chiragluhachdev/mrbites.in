@@ -6,6 +6,7 @@ import { orderAPI, restaurantAPI, API_BASE_URL } from '../../api';
 import { rupees, dayKey } from '../../format';
 import PosTerminal from './PosTerminal';
 import OnlineOrdersPanel from './OnlineOrdersPanel';
+import { useVendorAlarm } from '../../hooks/useVendorAlarm';
 import OrderDrawer from './OrderDrawer';
 
 /**
@@ -29,17 +30,7 @@ const PosDashboard = ({ vendor, openSidebar }) => {
   // where the rail is always on screen.
   const [onlineOpen, setOnlineOpen] = useState(false);
 
-  const interacted = useRef(false);
-  useEffect(() => {
-    const on = () => { interacted.current = true; document.removeEventListener('click', on); };
-    document.addEventListener('click', on);
-    return () => document.removeEventListener('click', on);
-  }, []);
-
-  const beep = useCallback(() => {
-    if (!interacted.current) return;
-    new Audio('/beep.mp3').play().catch(() => {});
-  }, []);
+  const { addUnacknowledged, removeUnacknowledged, playInteractionSound } = useVendorAlarm();
 
   const flashToast = useCallback((msg) => {
     setToast(msg);
@@ -113,32 +104,35 @@ const PosDashboard = ({ vendor, openSidebar }) => {
         status: 'pending',
       };
       setOnline((prev) => (prev.some((o) => o._id === order._id) ? prev : [order, ...prev]));
+      addUnacknowledged(order._id);
       flashToast(`New online order · ${rupees(order.total)}`);
-      beep();
     });
 
     socket.on('order.statusChanged', ({ orderId, status }) => {
       setOnline((prev) => prev.map((o) => (String(o._id) === String(orderId) ? { ...o, status } : o)));
+      removeUnacknowledged(orderId);
     });
 
     // The menu can change under the POS (vendor edits items elsewhere).
     socket.on('menu.updated', () => loadMenu());
 
     return () => socket.disconnect();
-  }, [restaurantId, beep, flashToast, loadMenu]);
+  }, [restaurantId, flashToast, loadMenu, addUnacknowledged, removeUnacknowledged]);
 
   const advance = useCallback(async (orderId, status) => {
     setBusyId(orderId);
     try {
+      playInteractionSound(status);
       await orderAPI.updateStatus(orderId, status);
       setOnline((prev) => prev.map((o) => (o._id === orderId ? { ...o, status } : o)));
       setDrawerOrder((d) => (d && d._id === orderId ? { ...d, status } : d));
+      removeUnacknowledged(orderId);
     } catch (err) {
       flashToast(err.response?.data?.message || 'Could not update the order');
     } finally {
       setBusyId(null);
     }
-  }, [flashToast]);
+  }, [flashToast, playInteractionSound, removeUnacknowledged]);
 
   const completeSale = useCallback(async (payload) => {
     try {
@@ -232,7 +226,12 @@ const PosDashboard = ({ vendor, openSidebar }) => {
       <div className="flex-1 flex min-h-0">
         <PosTerminal outletName={vendor.name} sections={sections} loading={menuLoading} onComplete={completeSale} />
         <div className="hidden xl:flex w-[26%] min-w-[300px] max-w-[380px] shrink-0">
-          <OnlineOrdersPanel orders={online} onOpen={setDrawerOrder} onAdvance={advance} busyId={busyId} />
+          <OnlineOrdersPanel 
+            orders={online} 
+            onOpen={(o) => { removeUnacknowledged(o._id); setDrawerOrder(o); }} 
+            onAdvance={advance} 
+            busyId={busyId} 
+          />
         </div>
       </div>
 
@@ -243,7 +242,7 @@ const PosDashboard = ({ vendor, openSidebar }) => {
           <div className="relative w-[340px] max-w-[85vw] h-full bg-gray-50 shadow-xl">
             <OnlineOrdersPanel
               orders={online}
-              onOpen={(o) => { setOnlineOpen(false); setDrawerOrder(o); }}
+              onOpen={(o) => { removeUnacknowledged(o._id); setOnlineOpen(false); setDrawerOrder(o); }}
               onAdvance={advance}
               busyId={busyId}
               onClose={() => setOnlineOpen(false)}
