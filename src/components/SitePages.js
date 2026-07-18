@@ -5,7 +5,7 @@ import { Instagram, Linkedin, Twitter } from './SocialIcons';
 import { Wordmark } from './LandingPage';
 
 const SUPPORT = 'support@mrbites.in';
-const COMPANY = 'Revera Studio';
+const COMPANY = 'Revera Technologies';
 const EFFECTIVE = 'July 2026';
 
 /* Sets a per-page title and meta description. The homepage's rich tags live in

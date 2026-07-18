@@ -642,7 +642,7 @@ const Footer = () => {
           <p className="flex items-center gap-4">
             <a href="mailto:support@mrbites.in" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Mail size={14} /> support@mrbites.in</a>
             <span className="hidden sm:inline text-gray-600">·</span>
-            <span>A <span className="text-gray-300 font-semibold">Revera Studio</span> product</span>
+            <span>A <span className="text-gray-300 font-semibold">Revera Technologies</span> product</span>
           </p>
         </div>
       </div>
