@@ -30,7 +30,7 @@ const PosDashboard = ({ vendor, openSidebar }) => {
   // where the rail is always on screen.
   const [onlineOpen, setOnlineOpen] = useState(false);
 
-  const { addUnacknowledged, removeUnacknowledged, playInteractionSound } = useVendorAlarm();
+  const { addUnacknowledged, removeUnacknowledged, playInteractionSound, AudioUnlocker } = useVendorAlarm();
 
   const flashToast = useCallback((msg) => {
     setToast(msg);
@@ -157,6 +157,7 @@ const PosDashboard = ({ vendor, openSidebar }) => {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
+      <AudioUnlocker />
       {/* Slim top bar */}
       <header className="h-14 shrink-0 bg-white border-b border-gray-200 flex items-center justify-between px-4">
         <div className="flex items-center gap-2.5">

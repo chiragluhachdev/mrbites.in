@@ -30,7 +30,7 @@ const ClassicDashboard = ({ openSidebar }) => {
   const [showMenuManager, setShowMenuManager] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  const { addUnacknowledged, removeUnacknowledged, playInteractionSound } = useVendorAlarm();
+  const { addUnacknowledged, removeUnacknowledged, playInteractionSound, AudioUnlocker } = useVendorAlarm();
 
   const TABS = ['incoming', 'cancelled', 'ready', 'completed'];
 
@@ -198,6 +198,8 @@ const ClassicDashboard = ({ openSidebar }) => {
           </div>
         </div>
       )}
+
+      <AudioUnlocker />
 
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 py-2 md:py-3 shadow-sm">
         <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-4">
