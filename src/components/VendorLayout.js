@@ -77,7 +77,7 @@ const VendorLayout = () => {
   const sidebar = (
     <>
       <div className="flex items-center gap-2.5 px-3 py-4">
-        <img src="/image.png" alt="MR Bites" className="w-9 h-9 rounded-lg object-contain bg-brand-50" />
+        <img src="/weblogo.png" alt="MR Bites" className="w-9 h-9 rounded-lg object-contain bg-brand-50" />
         <div className="min-w-0">
           <p className="font-extrabold text-gray-900 text-sm tracking-tight truncate">MR Bites</p>
           <p className="text-[11px] text-gray-500 font-medium">Vendor Panel</p>

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
+import { PrivacyPage, TermsPage, RefundPage, ContactPage } from './components/SitePages';
 import VendorLayout from './components/VendorLayout';
 import VendorFinance from './components/VendorFinance';
 import VendorAnalytics from './components/VendorAnalytics';
@@ -26,6 +27,22 @@ function App() {
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  // One build serves mrbites.in, admin.mrbites.in and vendor.mrbites.in, so they
+  // share index.html's marketing metadata. The admin and vendor consoles are
+  // private, login-only apps and must never be indexed — so on those subdomains
+  // we flip the robots tag to noindex at runtime.
+  useEffect(() => {
+    if (resolvePortal() === 'main') return;
+    let tag = document.querySelector('meta[name="robots"]');
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute('name', 'robots');
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', 'noindex, nofollow');
+    document.title = resolvePortal() === 'admin' ? 'MR BITES Admin' : 'MR BITES Vendor';
   }, []);
 
   const checkAuth = async () => {
@@ -118,14 +135,19 @@ function App() {
     );
   }
 
-  // mrbites.in — the public landing page and nothing else. Signing in happens on
-  // admin.mrbites.in and vendor.mrbites.in, so there is no second copy of those
-  // screens here.
+  // mrbites.in — the public marketing site: the landing page plus the legal and
+  // contact pages the app stores and payment gateway require. Signing in happens
+  // on admin.mrbites.in and vendor.mrbites.in, so there is no second copy of
+  // those screens here.
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/refund" element={<RefundPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

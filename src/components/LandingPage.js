@@ -1,413 +1,436 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { portalUrl } from '../portal';
-import { 
-  Clock, 
-  Store, 
-  CreditCard, 
-  ChevronRight, 
-  Smartphone, 
-  Search, 
-  CheckCircle2,
-  Menu,
-  X,
-  Heart,
-  Star,
-  MapPin,
-  Home,
-  ShoppingBag,
-  ShoppingCart
+import {
+  Clock, Store, CreditCard, ChevronRight, ChevronDown, Smartphone, Search,
+  CheckCircle2, Menu, X, Heart, Star, MapPin, Home, ShoppingBag, ShoppingCart,
+  Bell, ShieldCheck, GraduationCap, Building2, Users, Zap, ArrowRight, Mail,
 } from 'lucide-react';
+import { Instagram, Linkedin, Twitter, Facebook } from './SocialIcons';
 import { motion } from 'framer-motion';
 
-const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+/* MR BITES brand palette (the deep campus green + gold from the mark). Kept as
+   explicit values here because the shared Tailwind `brand-*` scale is emerald,
+   used by the admin/vendor apps — the marketing site owns its own colour. */
+const GREEN = '#056548';
+const GREEN_DARK = '#043D2C';
 
+const NAV_LINKS = [
+  { href: '#features', label: 'Features' },
+  { href: '#how-it-works', label: 'How it works' },
+  { href: '#campuses', label: 'For campuses' },
+  { href: '#faq', label: 'FAQ' },
+];
+
+const FAQS = [
+  {
+    q: 'What is MR BITES?',
+    a: 'MR BITES is a campus food ordering platform. Students pre-order from their campus cafés and food courts, pay online, and pick up the moment the food is ready — no queues, no cash, no waiting around.',
+  },
+  {
+    q: 'Which campuses can use MR BITES?',
+    a: 'Any institution with on-site food outlets — universities, colleges, schools, hostels, corporate campuses and institutional food courts. MR BITES is built to work for a single café or a whole food court.',
+  },
+  {
+    q: 'How do students pay?',
+    a: 'Payments are online and prepaid, via UPI, cards and net banking through a secure gateway. Orders are confirmed only after the payment is verified, so there is never any confusion at the counter.',
+  },
+  {
+    q: 'Are there any hidden fees for students?',
+    a: 'No. Students pay the menu price — MR BITES adds no platform fee, service charge or markup. What you see on the menu is what you pay.',
+  },
+  {
+    q: 'How do I bring MR BITES to my campus or cafeteria?',
+    a: 'Reach out through our Partner With Us page. We set up your outlet, import your menu, and give you a live dashboard to manage orders — usually within a day.',
+  },
+  {
+    q: 'Is my payment and data secure?',
+    a: 'Yes. Payments run through a PCI-compliant gateway and are verified on our servers before an order is placed. We never store card details, and personal data is handled per our Privacy Policy.',
+  },
+];
+
+/* ----------------------------------------------------------------- Navbar */
+
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-4'}`}>
-      <div className="container mx-auto px-4 md:px-6">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-2.5' : 'bg-transparent py-4'
+      }`}
+    >
+      <nav className="container mx-auto px-4 md:px-6" aria-label="Primary">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-            <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-              <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
-            </div>
-            <span className={`text-xl font-bold tracking-tight ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}>MR-BITES</span>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-8 font-medium">
-            <a href="#features" className="text-gray-600 hover:text-brand-600 transition-colors">Features</a>
-            <a href="#how-it-works" className="text-gray-600 hover:text-brand-600 transition-colors">How it Works</a>
-            <a href="#vendors" className="text-gray-600 hover:text-brand-600 transition-colors">For Vendors</a>
-            <a href="mailto:mrbites.support@gmail.com" className="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-full transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold text-sm">
-              Contact Us
-            </a>
+          <a href="#top" className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]" aria-label="MR BITES home">
+            <img src="/weblogo.png" alt="MR BITES" width="40" height="40" className="w-9 h-9 object-contain" />
+            <span className="text-lg font-extrabold tracking-tight text-gray-900">MR BITES</span>
+          </a>
+
+          <div className="hidden md:flex items-center gap-8">
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} className="text-sm font-semibold text-gray-600 hover:text-[#056548] transition-colors">
+                {l.label}
+              </a>
+            ))}
+            <Link
+              to="/contact"
+              className="bg-[#056548] hover:bg-[#043D2C] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-sm hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#056548]"
+            >
+              Partner with us
+            </Link>
           </div>
 
-          <button 
-            className="md:hidden text-gray-900"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          <button
+            className="md:hidden p-2 -mr-2 text-gray-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 w-full bg-white shadow-xl py-4 px-4 flex flex-col gap-4 border-t border-gray-100 md:hidden"
-        >
-          <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium py-2">Features</a>
-          <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium py-2">How it Works</a>
-          <a href="#vendors" onClick={() => setMobileMenuOpen(false)} className="text-gray-700 font-medium py-2">For Vendors</a>
-          <a href="mailto:mrbites.support@gmail.com" className="bg-brand-600 text-white px-5 py-3 rounded-xl font-bold mt-2 text-center shadow-lg">
-            Contact Us
-          </a>
-        </motion.div>
-      )}
-    </nav>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden mt-3 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 flex flex-col gap-1"
+          >
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-2.5 px-2 rounded-lg text-gray-700 font-semibold hover:bg-gray-50">
+                {l.label}
+              </a>
+            ))}
+            <Link to="/contact" onClick={() => setOpen(false)} className="mt-2 bg-[#056548] text-white px-5 py-3 rounded-xl font-bold text-center shadow">
+              Partner with us
+            </Link>
+          </motion.div>
+        )}
+      </nav>
+    </header>
   );
 };
 
-const Hero = () => {
-  return (
-    <section className="relative pt-20 pb-20 md:pt-32 md:pb-32 overflow-hidden bg-brand-50">
-      {/* Background decorations */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-100 rounded-bl-[100px] opacity-50 -z-0 hidden md:block"></div>
-      <div className="absolute -top-4 -right-24 w-96 h-96 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-      <div className="absolute top-48 -left-24 w-72 h-72 bg-brand-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+/* ------------------------------------------------------------------- Hero */
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full md:w-1/2 text-center md:text-left"
+const AppButtons = ({ align = 'start' }) => (
+  <div className={`flex flex-col sm:flex-row gap-3 justify-${align === 'center' ? 'center' : 'start'}`}>
+    {[
+      { store: 'App Store', sub: 'Coming soon' },
+      { store: 'Google Play', sub: 'Coming soon' },
+    ].map((b) => (
+      <button
+        key={b.store}
+        type="button"
+        aria-label={`${b.store} — coming soon`}
+        className="group bg-gray-900 hover:bg-black text-white px-6 py-3.5 rounded-2xl flex items-center gap-3 transition-all hover:-translate-y-0.5 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900"
+      >
+        <Smartphone size={22} className="shrink-0" />
+        <span className="text-left leading-none">
+          <span className="block text-[10px] uppercase tracking-wider opacity-70 mb-1">{b.sub}</span>
+          <span className="block text-sm font-bold">{b.store}</span>
+        </span>
+      </button>
+    ))}
+  </div>
+);
+
+const Hero = () => (
+  <section id="top" className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24 bg-[#F4FBF7]">
+    <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#056548] opacity-[0.07] blur-3xl" aria-hidden="true" />
+    <div className="absolute top-40 -left-24 w-80 h-80 rounded-full bg-[#F5A623] opacity-[0.08] blur-3xl" aria-hidden="true" />
+
+    <div className="container mx-auto px-4 md:px-6 relative">
+      <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full lg:w-1/2 text-center lg:text-left"
+        >
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-sm border border-[#056548]/10 text-[#056548] text-xs font-bold mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#34d399] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#056548]" />
+            </span>
+            Now onboarding campuses
+          </span>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight text-gray-900 mb-5">
+            Skip the queue.<br />
+            <span className="text-[#056548]">Pre-order campus food.</span>
+          </h1>
+
+          <p className="text-lg text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
+            MR BITES lets students order ahead from their campus cafés and food courts, pay online, and pick up
+            the moment it&apos;s ready — no lines, no cash, no waiting around.
+          </p>
+
+          <AppButtons />
+
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 justify-center lg:justify-start text-sm text-gray-600">
+            {['No student fees', 'Secure prepaid payments', 'Live order tracking'].map((t) => (
+              <li key={t} className="inline-flex items-center gap-1.5 font-medium">
+                <CheckCircle2 size={16} className="text-[#056548]" /> {t}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="w-full lg:w-1/2 flex justify-center relative"
+        >
+          <PhoneMock />
+          <div
+            className="hidden sm:flex absolute top-16 -right-2 md:right-6 bg-white p-3.5 rounded-2xl shadow-xl items-center gap-3 animate-bounce"
+            style={{ animationDuration: '3s' }}
+            aria-hidden="true"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white shadow-sm border border-brand-100 text-brand-600 text-sm font-semibold mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
-              </span>
-              Campus Pre-Order
+            <div className="bg-[#056548]/10 p-2 rounded-full text-[#056548]"><Bell size={20} /></div>
+            <div>
+              <p className="text-sm font-bold text-gray-900 leading-none mb-1">Order ready!</p>
+              <p className="text-xs text-gray-500 leading-none">Pick up at Counter 2</p>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 text-gray-900 tracking-tight">
-              Skip the Queue.<br/>
-              <span className="text-brand-600">Order Smart.</span>
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-lg mx-auto md:mx-0 leading-relaxed">
-              Order food from your campus outlets instantly. Pay online, skip the waiting lines, and save your precious time.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <button className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl flex items-center justify-center gap-3 transition-transform hover:-translate-y-1 shadow-lg">
-                <Smartphone size={24} />
-                <div className="text-left">
-                  <div className="text-[10px] uppercase tracking-wider opacity-80 leading-none mb-1">Coming Soon</div>
-                  <div className="text-sm font-semibold leading-none">App Store</div>
-                </div>
-              </button>
-              <button className="bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 px-8 py-4 rounded-xl flex items-center justify-center gap-3 transition-transform hover:-translate-y-1 shadow-sm">
-                <Smartphone size={24} className="text-brand-600" />
-                <div className="text-left">
-                  <div className="text-[10px] uppercase tracking-wider text-gray-500 leading-none mb-1">Coming Soon</div>
-                  <div className="text-sm font-semibold leading-none">Play Store</div>
-                </div>
-              </button>
-            </div>
-          </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full md:w-1/2 relative flex justify-center"
-          >
-            <div className="relative w-[280px] h-[580px] bg-gray-900 rounded-[40px] border-[8px] border-gray-900 shadow-2xl overflow-hidden z-10">
-              {/* Mock App UI */}
-              <div className="absolute inset-0 bg-[#F9FAFB] flex flex-col">
-                {/* Header Section */}
-                <div className="bg-[#056548] px-4 pt-8 pb-10 relative">
-                  {/* Status Bar Mock */}
-                  <div className="absolute top-2 left-0 right-0 flex justify-between px-5">
-                    <span className="text-[10px] text-white font-medium">9:41</span>
-                    <div className="flex gap-1 items-center">
-                      <div className="w-3 h-2 bg-white rounded-[2px] opacity-90"></div>
-                      <div className="w-2 h-2 bg-white rounded-full opacity-90"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Greeting Row */}
-                  <div className="flex justify-between items-center mt-4">
-                    <div>
-                      <p className="text-[8px] text-white/70 font-bold tracking-wider mb-0.5">GOOD AFTERNOON</p>
-                      <p className="text-white text-lg font-extrabold tracking-tight font-italic">Chirag 👋</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-full border border-white/30 bg-white/20 flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">C</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Body Section */}
-                <div className="flex-1 relative px-4">
-                  {/* Search Bar (Overlapping) */}
-                  <div className="absolute -top-5 left-4 right-4 h-10 bg-white rounded-xl shadow-md flex items-center px-3 border border-transparent z-20">
-                    <Search size={14} className="text-gray-400 mr-2" />
-                    <span className="text-xs text-gray-400 font-medium">Search restaurants...</span>
-                  </div>
-
-                  {/* Scroll Content */}
-                  <div className="pt-8 pb-4 h-full overflow-hidden flex flex-col gap-3">
-                    
-                    {/* Wishlist Banner */}
-                    <div className="bg-[#FFF8F1] border border-[#FFEDD5] rounded-2xl p-3 flex justify-between items-center shadow-sm relative overflow-hidden">
-                      <div className="flex items-center gap-3 relative z-10 w-[70%]">
-                        <div className="w-8 h-8 rounded-lg bg-[#FEE2E2] flex items-center justify-center shrink-0">
-                          <Heart size={14} className="text-[#EF4444]" fill="#EF4444" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-extrabold text-gray-900 mb-0.5">Your Favorites</p>
-                          <p className="text-[8px] leading-[10px] text-gray-500 pr-2">Tap ❤️ on dishes you love to save them!</p>
-                        </div>
-                      </div>
-                      <div className="w-12 h-10 bg-orange-200 rounded-lg overflow-hidden relative z-10 shrink-0">
-                         <img src="/image.png" alt="" className="w-full h-full object-cover opacity-80 mix-blend-multiply" />
-                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#056548] rounded-full flex items-center justify-center border border-[#FFF8F1]">
-                           <span className="text-white text-[8px] font-bold">→</span>
-                         </div>
-                      </div>
-                    </div>
-
-                    {/* Section Header */}
-                    <div className="flex justify-between items-end mt-1 mb-0.5">
-                      <h3 className="text-sm font-extrabold text-gray-900">Nearby Outlets</h3>
-                      <span className="text-[9px] text-gray-500 font-bold">3 places</span>
-                    </div>
-
-                    {/* Restaurant Card 1 */}
-                    <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex gap-3">
-                      <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
-                         <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=200" alt="Nescafe" className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1 py-0.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <h4 className="text-xs font-bold text-gray-900 truncate pr-1">Nescafe</h4>
-                            <div className="flex items-center bg-amber-50 px-1 py-0.5 rounded text-[8px] font-bold text-amber-700">
-                              <Star size={8} fill="currentColor" className="mr-0.5" /> 4.8
-                            </div>
-                          </div>
-                          <p className="text-[9px] text-gray-500 mt-0.5 flex items-center">
-                            <MapPin size={8} className="mr-0.5" /> Library Block A
-                          </p>
-                        </div>
-                        <div className="flex justify-between items-center mt-1">
-                          <div className="flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-md">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></div>
-                            <span className="text-[8px] font-bold text-emerald-600 uppercase">5-10 min</span>
-                          </div>
-                          <div className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center">
-                            <span className="text-emerald-600 text-[10px] font-bold">›</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Restaurant Card 2 */}
-                    <div className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex gap-3">
-                      <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0 relative">
-                         <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=200" alt="CHAIGARAM" className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1 py-0.5 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <h4 className="text-xs font-bold text-gray-900 truncate pr-1">CHAIGARAM</h4>
-                            <div className="flex items-center bg-amber-50 px-1 py-0.5 rounded text-[8px] font-bold text-amber-700">
-                              <Star size={8} fill="currentColor" className="mr-0.5" /> 4.5
-                            </div>
-                          </div>
-                          <p className="text-[9px] text-gray-500 mt-0.5 flex items-center">
-                            <MapPin size={8} className="mr-0.5" /> Main Gate
-                          </p>
-                        </div>
-                        <div className="flex justify-between items-center mt-1">
-                          <div className="flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-md">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></div>
-                            <span className="text-[8px] font-bold text-emerald-600 uppercase">10 min</span>
-                          </div>
-                          <div className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center">
-                            <span className="text-emerald-600 text-[10px] font-bold">›</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* Bottom Nav */}
-                <div className="absolute bottom-4 left-4 right-4 z-50">
-                  {/* Floating Action Button (Center) */}
-                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#056548] rounded-full flex items-center justify-center shadow-lg border-[3px] border-white z-20">
-                    <ShoppingBag size={20} className="text-white" />
-                  </div>
-                  
-                  {/* Glassmorphic Pill */}
-                  <div className="bg-white/90 backdrop-blur-md rounded-[24px] h-[52px] flex items-center justify-between px-3 shadow-[0_8px_20px_rgba(0,0,0,0.08)] border border-gray-100">
-                    <div className="flex flex-col items-center justify-center w-9 h-full relative">
-                      <Home size={18} className="text-[#056548]" fill="#056548" />
-                      <div className="w-1 h-1 bg-[#056548] rounded-full absolute bottom-1"></div>
-                    </div>
-                    <div className="flex flex-col items-center justify-center w-9 h-full">
-                      <Search size={18} className="text-gray-400" />
-                    </div>
-                    
-                    {/* Spacer for FAB */}
-                    <div className="w-12 h-full"></div>
-                    
-                    <div className="flex flex-col items-center justify-center w-9 h-full relative">
-                      <ShoppingCart size={18} className="text-gray-400" />
-                      <div className="absolute top-2 right-0 bg-red-500 w-[14px] h-[14px] rounded-full flex items-center justify-center border border-white">
-                        <span className="text-[6px] font-bold text-white leading-none">2</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center justify-center w-9 h-full">
-                      <Heart size={18} className="text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Decorative elements behind phone */}
-            <div className="absolute top-1/4 -right-12 bg-white p-4 rounded-2xl shadow-xl glass-card z-20 animate-bounce" style={{animationDuration: '3s'}}>
-              <div className="flex items-center gap-3">
-                <div className="bg-green-100 p-2 rounded-full text-green-600">
-                  <CheckCircle2 size={24} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold">Order Ready!</p>
-                  <p className="text-xs text-gray-500">Pick up at Counter 2</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+/* A generic phone mock — no real names, decorative only. */
+const PhoneMock = () => (
+  <div className="relative w-[270px] h-[560px] bg-gray-900 rounded-[42px] border-[8px] border-gray-900 shadow-2xl overflow-hidden" role="img" aria-label="MR BITES app preview">
+    <div className="absolute inset-0 bg-[#F9FAFB] flex flex-col">
+      <div className="bg-[#056548] px-4 pt-7 pb-9 relative">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-[8px] text-white/70 font-bold tracking-wider mb-0.5">GOOD AFTERNOON</p>
+            <p className="text-white text-lg font-extrabold tracking-tight">Hey there 👋</p>
+          </div>
+          <div className="w-8 h-8 rounded-full border border-white/30 bg-white/20" />
         </div>
       </div>
-    </section>
-  );
-};
+      <div className="flex-1 relative px-4">
+        <div className="absolute -top-5 left-4 right-4 h-10 bg-white rounded-xl shadow-md flex items-center px-3 z-20">
+          <Search size={14} className="text-gray-400 mr-2" />
+          <span className="text-xs text-gray-400 font-medium">Search outlets & dishes…</span>
+        </div>
+        <div className="pt-8 flex flex-col gap-3">
+          <div className="flex justify-between items-end">
+            <h3 className="text-sm font-extrabold text-gray-900">Campus outlets</h3>
+            <span className="text-[9px] text-gray-500 font-bold">Open now</span>
+          </div>
+          {[
+            { name: 'The Coffee Corner', loc: 'Block A', rating: '4.8', time: '5–10 min' },
+            { name: 'Food Court Central', loc: 'Main Plaza', rating: '4.6', time: '10 min' },
+          ].map((r) => (
+            <div key={r.name} className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex gap-3">
+              <div className="w-14 h-14 rounded-xl bg-[#056548]/5 flex items-center justify-center shrink-0">
+                <ShoppingBag size={20} className="text-[#056548]" />
+              </div>
+              <div className="flex-1 flex flex-col justify-between py-0.5">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-xs font-bold text-gray-900 truncate pr-1">{r.name}</h4>
+                  <span className="flex items-center bg-amber-50 px-1 py-0.5 rounded text-[8px] font-bold text-amber-700">
+                    <Star size={8} fill="currentColor" className="mr-0.5" /> {r.rating}
+                  </span>
+                </div>
+                <p className="text-[9px] text-gray-500 flex items-center"><MapPin size={8} className="mr-0.5" /> {r.loc}</p>
+                <div className="flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-md w-max">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
+                  <span className="text-[8px] font-bold text-emerald-600 uppercase">{r.time}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute bottom-4 left-4 right-4">
+        <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#056548] rounded-full flex items-center justify-center shadow-lg border-[3px] border-white">
+          <ShoppingBag size={20} className="text-white" />
+        </div>
+        <div className="bg-white/90 backdrop-blur-md rounded-3xl h-[52px] flex items-center justify-between px-4 shadow-lg border border-gray-100">
+          <Home size={18} className="text-[#056548]" fill="#056548" />
+          <Search size={18} className="text-gray-400" />
+          <span className="w-12" />
+          <span className="relative"><ShoppingCart size={18} className="text-gray-400" /><span className="absolute -top-1.5 -right-1.5 bg-red-500 w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white text-[6px] font-bold text-white">2</span></span>
+          <Heart size={18} className="text-gray-400" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+/* --------------------------------------------------------------- Trust bar */
+
+const TrustBar = () => (
+  <section className="bg-white border-y border-gray-100" aria-label="Highlights">
+    <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        {[
+          { icon: <Zap size={20} />, label: 'Order in seconds' },
+          { icon: <ShieldCheck size={20} />, label: 'Secure prepaid' },
+          { icon: <Bell size={20} />, label: 'Ready alerts' },
+          { icon: <Store size={20} />, label: 'Every campus outlet' },
+        ].map((s) => (
+          <div key={s.label} className="flex flex-col items-center gap-2">
+            <span className="w-11 h-11 rounded-xl bg-[#056548]/8 text-[#056548] flex items-center justify-center">{s.icon}</span>
+            <span className="text-sm font-semibold text-gray-700">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* --------------------------------------------------------------- Features */
 
 const Features = () => {
-  const features = [
-    {
-      icon: <Clock size={28} />,
-      title: "Fast Ordering",
-      description: "Browse menus and place orders in seconds. No more standing in long lines during breaks.",
-      color: "bg-blue-100 text-blue-600"
-    },
-    {
-      icon: <div className="w-10 h-10 overflow-hidden rounded-xl"><img src="/image.png" alt="" className="w-full h-full object-cover" /></div>,
-      title: "No Waiting",
-      description: "Get notified when your food is ready. Just walk up to the counter and collect it.",
-      color: "bg-brand-100 text-brand-600"
-    },
-    {
-      icon: <Store size={28} />,
-      title: "Multiple Vendors",
-      description: "Access all your campus canteens and cafes from a single, unified app interface.",
-      color: "bg-purple-100 text-purple-600"
-    },
-    {
-      icon: <CreditCard size={28} />,
-      title: "Easy Payments",
-      description: "Pay securely via UPI, cards, or net banking directly from your phone.",
-      color: "bg-green-100 text-green-600"
-    }
+  const items = [
+    { icon: <Clock size={26} />, title: 'Pre-order & skip lines', desc: 'Order between classes and walk straight to the counter. No more losing your whole break to a queue.' },
+    { icon: <Bell size={26} />, title: 'Live order tracking', desc: 'Watch your order move from accepted to ready, and get pinged the moment it can be collected.' },
+    { icon: <CreditCard size={26} />, title: 'Cashless & secure', desc: 'Pay by UPI, card or net banking. Orders confirm only after payment is verified on our servers.' },
+    { icon: <Store size={26} />, title: 'Every outlet, one app', desc: 'Cafés, canteens and food courts across your campus — browse and order from all of them in one place.' },
+    { icon: <ShieldCheck size={26} />, title: 'No student fees', desc: 'You pay the menu price and nothing more. No platform fee, no service charge, no surprises at checkout.' },
+    { icon: <Users size={26} />, title: 'Order for the group', desc: 'Grab lunch for the whole table in a single order and pick it all up together.' },
   ];
-
   return (
-    <section id="features" className="py-24 bg-white">
+    <section id="features" className="py-20 md:py-28 bg-white">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">Everything you need</h2>
-          <p className="text-lg text-gray-600">Designed specifically for students to make campus dining effortless and completely frictionless.</p>
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#056548] mb-3">Features</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 mb-4">Everything students need</h2>
+          <p className="text-lg text-gray-600">Campus dining, without the friction. Built around how students actually eat between classes.</p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, idx) => (
-            <motion.div 
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((f, i) => (
+            <motion.article
+              key={f.title}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="p-6 rounded-2xl border border-gray-100 hover:border-brand-100 hover:shadow-xl transition-all duration-300 group bg-gray-50/50 hover:bg-white"
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: (i % 3) * 0.08 }}
+              className="p-7 rounded-3xl border border-gray-100 bg-gray-50/60 hover:bg-white hover:border-[#056548]/20 hover:shadow-xl transition-all duration-300 group"
             >
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${feature.color} group-hover:scale-110 transition-transform`}>
-                {feature.icon}
+              <div className="w-14 h-14 rounded-2xl bg-[#056548]/8 text-[#056548] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                {f.icon}
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
-            </motion.div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
+              <p className="text-gray-600 leading-relaxed">{f.desc}</p>
+            </motion.article>
           ))}
         </div>
       </div>
     </section>
   );
 };
+
+/* ------------------------------------------------------------ How it works */
 
 const HowItWorks = () => {
   const steps = [
-    { num: "01", title: "Browse Menu", desc: "Select your favorite campus outlet and view their full menu." },
-    { num: "02", title: "Place Order", desc: "Customize your items and add them to your cart." },
-    { num: "03", title: "Pay Online", desc: "Complete payment quickly using UPI or other digital methods." },
-    { num: "04", title: "Pick Up Food", desc: "Collect your food immediately when you receive the ready notification." }
+    { n: '01', t: 'Browse', d: 'Open MR BITES and pick from every open outlet on your campus.' },
+    { n: '02', t: 'Order & pay', d: 'Add your items, customise them, and pay securely online.' },
+    { n: '03', t: 'Track', d: 'Follow your order live — accepted, preparing, ready.' },
+    { n: '04', t: 'Pick up', d: 'Get the ready alert, walk up, and collect. No queue.' },
   ];
-
   return (
-    <section id="how-it-works" className="py-24 bg-gray-900 text-white overflow-hidden relative">
-      {/* Decorative background */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-brand-500 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-500 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">How MR-BITES Works</h2>
-          <p className="text-lg text-gray-400">Four simple steps to get your food without the hassle of waiting.</p>
+    <section id="how-it-works" className="py-20 md:py-28 relative overflow-hidden" style={{ background: GREEN_DARK }}>
+      <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#056548] opacity-40 blur-3xl" aria-hidden="true" />
+      <div className="container mx-auto px-4 md:px-6 relative">
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#F5A623] mb-3">How it works</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4">From craving to counter in four taps</h2>
+          <p className="text-lg text-white/70">No app-store jargon. Just food, faster.</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {steps.map((step, idx) => (
-            <div key={idx} className="relative">
-              {idx < steps.length - 1 && (
-                <div className="hidden md:block absolute top-10 left-1/2 w-full border-t-2 border-dashed border-gray-700"></div>
-              )}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+        <ol className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {steps.map((s, i) => (
+            <li key={s.n} className="relative">
+              {i < steps.length - 1 && <span className="hidden md:block absolute top-9 left-[calc(50%+2.5rem)] right-0 border-t-2 border-dashed border-white/20" aria-hidden="true" />}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: idx * 0.15 }}
-                className="relative z-10 flex flex-col items-center text-center"
+                transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-center text-center"
               >
-                <div className="w-20 h-20 bg-gray-800 border-4 border-gray-900 rounded-full flex items-center justify-center text-2xl font-bold text-brand-500 mb-6 shadow-xl">
-                  {step.num}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-gray-400">{step.desc}</p>
+                <span className="w-[72px] h-[72px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl font-extrabold text-[#F5A623] mb-5">{s.n}</span>
+                <h3 className="text-lg font-bold text-white mb-2">{s.t}</h3>
+                <p className="text-white/60 text-sm leading-relaxed">{s.d}</p>
               </motion.div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+};
+
+/* --------------------------------------------------------------- Campuses */
+
+const Campuses = () => {
+  const cards = [
+    {
+      icon: <GraduationCap size={24} />,
+      title: 'For students',
+      points: ['Order ahead, skip the queue', 'Pay online — no cash needed', 'Get notified when it’s ready'],
+      cta: { label: 'Get the app', to: null },
+    },
+    {
+      icon: <Store size={24} />,
+      title: 'For cafeterias & food courts',
+      points: ['A live dashboard for every order', 'Fewer counter crowds, faster service', 'Keep 100% of the menu price'],
+      cta: { label: 'Partner with us', to: '/contact' },
+    },
+    {
+      icon: <Building2 size={24} />,
+      title: 'For universities & institutions',
+      points: ['One platform for every outlet', 'Cashless, trackable campus dining', 'Set up in days, not months'],
+      cta: { label: 'Request a demo', to: '/contact' },
+    },
+  ];
+  return (
+    <section id="campuses" className="py-20 md:py-28 bg-[#F4FBF7]">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-2xl mx-auto text-center mb-14">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#056548] mb-3">Built for everyone on campus</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900 mb-4">One platform, three wins</h2>
+          <p className="text-lg text-gray-600">Whether you eat on campus, run an outlet, or run the campus — MR BITES fits.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {cards.map((c) => (
+            <div key={c.title} className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow p-8 flex flex-col">
+              <div className="w-14 h-14 rounded-2xl bg-[#056548]/8 text-[#056548] flex items-center justify-center mb-6">{c.icon}</div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">{c.title}</h3>
+              <ul className="space-y-3 mb-8 flex-1">
+                {c.points.map((p) => (
+                  <li key={p} className="flex items-start gap-2.5 text-gray-600">
+                    <CheckCircle2 size={18} className="text-[#056548] shrink-0 mt-0.5" />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+              {c.cta.to ? (
+                <Link to={c.cta.to} className="inline-flex items-center justify-center gap-1.5 bg-[#056548] hover:bg-[#043D2C] text-white font-bold px-5 py-3 rounded-xl transition-colors">
+                  {c.cta.label} <ArrowRight size={18} />
+                </Link>
+              ) : (
+                <a href="#top" className="inline-flex items-center justify-center gap-1.5 border-2 border-[#056548] text-[#056548] hover:bg-[#056548] hover:text-white font-bold px-5 py-3 rounded-xl transition-colors">
+                  {c.cta.label} <ArrowRight size={18} />
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -416,91 +439,161 @@ const HowItWorks = () => {
   );
 };
 
-const Vendors = () => {
-  return (
-    <section id="vendors" className="py-24 bg-brand-50">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="bg-white rounded-[40px] overflow-hidden shadow-2xl flex flex-col md:flex-row">
-          <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 text-brand-600 text-sm font-semibold mb-6 w-max">
-              <Store size={16} />
-              For Canteen Owners
+/* -------------------------------------------------------------- Vendor CTA */
+
+const VendorBand = () => (
+  <section className="py-20 md:py-28 bg-white">
+    <div className="container mx-auto px-4 md:px-6">
+      <div className="rounded-[40px] overflow-hidden shadow-2xl flex flex-col md:flex-row" style={{ background: GREEN }}>
+        <div className="w-full md:w-1/2 p-10 md:p-14 text-white">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 text-white text-xs font-bold mb-6">
+            <Store size={15} /> For outlet owners
+          </span>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-5">Run your outlet on MR BITES</h2>
+          <p className="text-white/85 text-lg leading-relaxed mb-8">
+            Take orders before the rush hits, cut counter chaos, and keep every rupee of the menu price — MR BITES charges
+            outlets no commission. Manage it all from one live dashboard.
+          </p>
+          <ul className="space-y-3 mb-9">
+            {['Live orders, accept in one tap', 'Built-in counter POS for walk-ins', 'Daily sales, clearly reconciled'].map((t) => (
+              <li key={t} className="flex items-center gap-3 font-medium"><CheckCircle2 size={20} className="text-[#FFF59D] shrink-0" /> {t}</li>
+            ))}
+          </ul>
+          <button
+            onClick={() => { window.location.href = portalUrl('vendor', '/login'); }}
+            className="bg-white text-[#056548] hover:bg-[#FFF59D] px-7 py-3.5 rounded-xl font-bold inline-flex items-center gap-2 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
+          >
+            Vendor login <ChevronRight size={20} />
+          </button>
+        </div>
+        <div className="w-full md:w-1/2 relative min-h-[340px] flex items-center justify-center p-8">
+          <div className="absolute inset-0 opacity-15" style={{ backgroundImage: 'radial-gradient(#fff 1.5px, transparent 1.5px)', backgroundSize: '26px 26px' }} aria-hidden="true" />
+          <div className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 rotate-[-3deg]">
+            <div className="flex justify-between items-center mb-5 border-b border-gray-100 pb-4">
+              <div>
+                <p className="font-bold text-gray-900">Live orders</p>
+                <p className="text-xs text-gray-500">Counter dashboard</p>
+              </div>
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Online</span>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 tracking-tight">Grow your business with MR-BITES</h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Digitize your campus outlet. Manage orders efficiently, reduce counter chaos, and increase your daily sales with our smart vendor system.
-            </p>
-            <ul className="space-y-4 mb-10">
-              {['Increase daily order volume', 'Streamlined digital payments', 'Real-time order management dashboard'].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                  <CheckCircle2 className="text-brand-500 flex-shrink-0" size={20} />
-                  {item}
-                </li>
+            <div className="space-y-3">
+              {[{ id: '8493', items: '2× Cold Coffee, 1× Wrap' }, { id: '8494', items: '1× Veg Sandwich' }].map((o) => (
+                <div key={o.id} className="bg-gray-50 p-3.5 rounded-xl flex justify-between items-center border border-gray-100">
+                  <div><p className="font-bold text-gray-900 text-sm">#{o.id}</p><p className="text-xs text-gray-500">{o.items}</p></div>
+                  <span className="bg-[#056548] text-white px-3.5 py-1.5 rounded-lg text-xs font-bold">Accept</span>
+                </div>
               ))}
-            </ul>
-            <button onClick={() => { window.location.href = portalUrl('vendor', '/login'); }} className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-xl flex items-center justify-center gap-2 transition-transform hover:-translate-y-1 shadow-md w-max font-medium">
-              Join as Vendor / Login <ChevronRight size={20} />
-            </button>
+            </div>
           </div>
-          <div className="w-full md:w-1/2 bg-brand-600 relative overflow-hidden min-h-[400px]">
-             {/* Abstract pattern or dashboard mock */}
-             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(#fff 2px, transparent 2px)', backgroundSize: '30px 30px'}}></div>
-             <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120%] bg-white rounded-2xl shadow-2xl p-6 rotate-[-5deg]"
-             >
-                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-lg">Vendor Dashboard</h3>
-                    <p className="text-sm text-gray-500">Live Orders</p>
-                  </div>
-                  <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Online</div>
-                </div>
-                <div className="space-y-4">
-                  {[1, 2].map((i) => (
-                    <div key={i} className="bg-gray-50 p-4 rounded-xl flex justify-between items-center border border-gray-100">
-                      <div>
-                        <p className="font-bold">Order #{8492 + i}</p>
-                        <p className="text-sm text-gray-500">2x Burger, 1x Coke</p>
-                      </div>
-                      <button className="bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                        Accept
-                      </button>
-                    </div>
-                  ))}
-                </div>
-             </motion.div>
-          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+/* -------------------------------------------------------------------- FAQ */
+
+const Faq = () => {
+  const [open, setOpen] = useState(0);
+  const toggle = useCallback((i) => setOpen((cur) => (cur === i ? -1 : i)), []);
+  return (
+    <section id="faq" className="py-20 md:py-28 bg-[#F4FBF7]">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-2xl mx-auto text-center mb-12">
+          <p className="text-sm font-bold uppercase tracking-wider text-[#056548] mb-3">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Questions, answered</h2>
+        </div>
+        <div className="max-w-3xl mx-auto space-y-3">
+          {FAQS.map((f, i) => (
+            <div key={f.q} className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <h3>
+                <button
+                  onClick={() => toggle(i)}
+                  aria-expanded={open === i}
+                  className="w-full flex items-center justify-between gap-4 text-left px-5 py-4 font-bold text-gray-900 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#056548]"
+                >
+                  <span>{f.q}</span>
+                  <ChevronDown size={20} className={`shrink-0 text-[#056548] transition-transform ${open === i ? 'rotate-180' : ''}`} />
+                </button>
+              </h3>
+              {open === i && (
+                <div className="px-5 pb-5 -mt-1 text-gray-600 leading-relaxed">{f.a}</div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 };
 
+/* ---------------------------------------------------------------- Footer */
+
 const Footer = () => {
+  const year = new Date().getFullYear();
+  const socials = [
+    { icon: <Instagram size={18} />, href: 'https://instagram.com/mrbites.in', label: 'Instagram' },
+    { icon: <Linkedin size={18} />, href: 'https://linkedin.com/company/mrbites', label: 'LinkedIn' },
+    { icon: <Twitter size={18} />, href: 'https://x.com/mrbites', label: 'X' },
+    { icon: <Facebook size={18} />, href: 'https://facebook.com/mrbites.in', label: 'Facebook' },
+  ];
+  const cols = [
+    { title: 'Product', links: [{ l: 'Features', h: '#features' }, { l: 'How it works', h: '#how-it-works' }, { l: 'For campuses', h: '#campuses' }, { l: 'FAQ', h: '#faq' }] },
+    { title: 'Company', links: [{ l: 'Partner with us', to: '/contact' }, { l: 'Contact', to: '/contact' }, { l: 'Careers — soon', h: '#', muted: true }, { l: 'Blog — soon', h: '#', muted: true }] },
+    { title: 'Legal', links: [{ l: 'Privacy Policy', to: '/privacy' }, { l: 'Terms & Conditions', to: '/terms' }, { l: 'Refund Policy', to: '/refund' }, { l: 'Support', href: 'mailto:support@mrbites.in' }] },
+  ];
   return (
-    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
+    <footer className="bg-gray-900 text-gray-300 pt-16 pb-8">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl border border-gray-100 shadow-sm">
-              <img src="/image.png" alt="Logo" className="w-full h-full object-cover" />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-10 mb-12">
+          <div className="col-span-2">
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src="/weblogo.png" alt="MR BITES" width="36" height="36" className="w-9 h-9 object-contain bg-white rounded-lg p-0.5" />
+              <span className="text-xl font-extrabold text-white tracking-tight">MR BITES</span>
             </div>
-            <span className="text-2xl font-bold tracking-tight text-gray-900">MR-BITES</span>
+            <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-5">
+              The campus food ordering platform. Pre-order, pay online, and skip the queue — for universities, colleges,
+              schools and corporate campuses.
+            </p>
+            <div className="flex gap-2">
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-[#056548] flex items-center justify-center text-gray-300 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]"
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-6">
-            <a href="#features" className="text-gray-500 hover:text-brand-600 font-medium">Features</a>
-            <a href="#vendors" className="text-gray-500 hover:text-brand-600 font-medium">For Vendors</a>
-            <a href="mailto:mrbites.support@gmail.com" className="text-gray-500 hover:text-brand-600 font-medium">Contact</a>
-          </div>
+          {cols.map((col) => (
+            <nav key={col.title} aria-label={col.title}>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider mb-4">{col.title}</h2>
+              <ul className="space-y-2.5 text-sm">
+                {col.links.map((lk) => (
+                  <li key={lk.l}>
+                    {lk.to ? (
+                      <Link to={lk.to} className="text-gray-400 hover:text-white transition-colors">{lk.l}</Link>
+                    ) : (
+                      <a href={lk.href || lk.h} className={`transition-colors ${lk.muted ? 'text-gray-600 cursor-default' : 'text-gray-400 hover:text-white'}`}>{lk.l}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
-        
-        <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">© {new Date().getFullYear()} MR-BITES. All rights reserved.</p>
-          <p className="text-gray-500 font-medium flex items-center gap-1">
-            Made with <span className="text-brand-500">❤️</span> for students
+
+        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+          <p>© {year} MR BITES. All Rights Reserved.</p>
+          <p className="flex items-center gap-4">
+            <a href="mailto:support@mrbites.in" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Mail size={14} /> support@mrbites.in</a>
+            <span className="hidden sm:inline text-gray-600">·</span>
+            <span>A <span className="text-gray-300 font-semibold">Revera Studio</span> product</span>
           </p>
         </div>
       </div>
@@ -508,17 +601,22 @@ const Footer = () => {
   );
 };
 
-const LandingPage = () => {
-  return (
-    <div className="min-h-screen bg-white selection:bg-brand-100 selection:text-brand-900">
-      <Navbar />
+/* ---------------------------------------------------------------- Page */
+
+const LandingPage = () => (
+  <div className="min-h-screen bg-white text-gray-900 antialiased selection:bg-[#056548]/15">
+    <Navbar />
+    <main>
       <Hero />
+      <TrustBar />
       <Features />
       <HowItWorks />
-      <Vendors />
-      <Footer />
-    </div>
-  );
-}
+      <Campuses />
+      <VendorBand />
+      <Faq />
+    </main>
+    <Footer />
+  </div>
+);
 
 export default LandingPage;

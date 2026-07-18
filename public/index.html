@@ -2,42 +2,185 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- Primary -->
+    <title>MR BITES — Campus Food Ordering | Skip the Queue, Pre-Order & Pick Up</title>
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="MR BITES is a campus food ordering platform for universities, colleges, schools and corporate campuses. Students pre-order from campus cafés and food courts, pay online securely, track orders live, and skip the queue."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <meta
+      name="keywords"
+      content="MR BITES, MR BITES India, MR BITES app, campus food ordering, college food ordering, university food ordering, campus food delivery, campus canteen app, student food ordering, food pre ordering app, hostel food ordering, cafeteria ordering app"
+    />
+    <meta name="author" content="Revera Studio" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#056548" />
+    <meta name="color-scheme" content="light" />
+    <link rel="canonical" href="https://mrbites.in/" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    <!-- Icons & PWA -->
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32.png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="apple-mobile-web-app-title" content="MR BITES" />
+    <meta name="application-name" content="MR BITES" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-config" content="%PUBLIC_URL%/browserconfig.xml" />
+    <meta name="msapplication-TileColor" content="#056548" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="MR BITES" />
+    <meta property="og:title" content="MR BITES — Skip the queue. Pre-order campus food." />
+    <meta
+      property="og:description"
+      content="Pre-order from your campus cafés and food courts, pay online, and pick up the moment it's ready. Campus food ordering for universities, colleges, schools and corporate campuses."
+    />
+    <meta property="og:url" content="https://mrbites.in/" />
+    <meta property="og:image" content="https://mrbites.in/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="MR BITES — campus food ordering" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MR BITES — Skip the queue. Pre-order campus food." />
+    <meta
+      name="twitter:description"
+      content="Pre-order from your campus cafés and food courts, pay online, and pick up the moment it's ready."
+    />
+    <meta name="twitter:image" content="https://mrbites.in/og-image.jpg" />
+    <meta name="twitter:image:alt" content="MR BITES — campus food ordering" />
+
+    <!-- Perf: warm up the API origin the app talks to -->
+    <link rel="preconnect" href="https://api.mrbites.in" crossorigin />
+    <link rel="dns-prefetch" href="https://api.mrbites.in" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://mrbites.in/#organization",
+          "name": "MR BITES",
+          "legalName": "Revera Studio",
+          "url": "https://mrbites.in/",
+          "logo": "https://mrbites.in/icon-512.png",
+          "email": "support@mrbites.in",
+          "description": "MR BITES is a campus food ordering platform for universities, colleges, schools and corporate campuses.",
+          "areaServed": "IN",
+          "sameAs": [
+            "https://instagram.com/mrbites.in",
+            "https://linkedin.com/company/mrbites",
+            "https://x.com/mrbites",
+            "https://facebook.com/mrbites.in"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "support@mrbites.in",
+            "contactType": "customer support",
+            "areaServed": "IN",
+            "availableLanguage": ["English", "Hindi"]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://mrbites.in/#website",
+          "url": "https://mrbites.in/",
+          "name": "MR BITES",
+          "publisher": { "@id": "https://mrbites.in/#organization" },
+          "inLanguage": "en-IN"
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://mrbites.in/#webpage",
+          "url": "https://mrbites.in/",
+          "name": "MR BITES — Campus Food Ordering",
+          "isPartOf": { "@id": "https://mrbites.in/#website" },
+          "about": { "@id": "https://mrbites.in/#organization" },
+          "description": "Pre-order from campus cafés and food courts, pay online, and skip the queue."
+        },
+        {
+          "@type": "MobileApplication",
+          "@id": "https://mrbites.in/#app",
+          "name": "MR BITES",
+          "operatingSystem": "Android, iOS",
+          "applicationCategory": "FoodAndDrinkApplication",
+          "url": "https://mrbites.in/",
+          "publisher": { "@id": "https://mrbites.in/#organization" },
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://mrbites.in/#faq",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is MR BITES?", "acceptedAnswer": { "@type": "Answer", "text": "MR BITES is a campus food ordering platform. Students pre-order from their campus cafes and food courts, pay online, and pick up the moment the food is ready — no queues, no cash, no waiting around." } },
+            { "@type": "Question", "name": "Which campuses can use MR BITES?", "acceptedAnswer": { "@type": "Answer", "text": "Any institution with on-site food outlets — universities, colleges, schools, hostels, corporate campuses and institutional food courts." } },
+            { "@type": "Question", "name": "How do students pay?", "acceptedAnswer": { "@type": "Answer", "text": "Payments are online and prepaid, via UPI, cards and net banking through a secure gateway. Orders are confirmed only after the payment is verified." } },
+            { "@type": "Question", "name": "Are there any hidden fees for students?", "acceptedAnswer": { "@type": "Answer", "text": "No. Students pay the menu price — MR BITES adds no platform fee, service charge or markup." } },
+            { "@type": "Question", "name": "How do I bring MR BITES to my campus or cafeteria?", "acceptedAnswer": { "@type": "Answer", "text": "Reach out through our Partner With Us page. We set up your outlet, import your menu, and give you a live dashboard to manage orders — usually within a day." } },
+            { "@type": "Question", "name": "Is my payment and data secure?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Payments run through a PCI-compliant gateway and are verified on our servers before an order is placed. We never store card details." } }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <!-- Analytics — all opt-in via build-time env vars; nothing loads unless the
+         id is set at build time. No tracking IDs are hard-coded. -->
+    <script>
+      (function () {
+        function loaded(v) { return v && v.charAt(0) !== '%'; }
+
+        var GTM = '%REACT_APP_GTM_ID%';
+        if (loaded(GTM)) {
+          (function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+            var f = d.getElementsByTagName(s)[0], j = d.createElement(s);
+            j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i;
+            f.parentNode.insertBefore(j, f);
+          })(window, document, 'script', 'dataLayer', GTM);
+        }
+
+        var GA = '%REACT_APP_GA_ID%';
+        if (loaded(GA)) {
+          var s = document.createElement('script'); s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA;
+          document.head.appendChild(s);
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function () { window.dataLayer.push(arguments); };
+          window.gtag('js', new Date()); window.gtag('config', GA);
+        }
+
+        var CLARITY = '%REACT_APP_CLARITY_ID%';
+        if (loaded(CLARITY)) {
+          (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+            t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+          })(window, document, 'clarity', 'script', CLARITY);
+        }
+
+        var PIXEL = '%REACT_APP_META_PIXEL_ID%';
+        if (loaded(PIXEL)) {
+          !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
+            t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+          }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+          window.fbq('init', PIXEL); window.fbq('track', 'PageView');
+        }
+      })();
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>You need to enable JavaScript to use MR BITES — the campus food ordering platform.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

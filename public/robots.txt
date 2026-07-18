@@ -1,3 +1,8 @@
-# https://www.robotstxt.org/robotstxt.html
+# MR BITES — https://mrbites.in
 User-agent: *
-Disallow:
+Allow: /
+
+# The admin and vendor consoles live on their own subdomains and are behind a
+# login; the app also tags them noindex at runtime.
+
+Sitemap: https://mrbites.in/sitemap.xml
