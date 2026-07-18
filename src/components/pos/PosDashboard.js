@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import io from 'socket.io-client';
 import { LogOut, Store, Wallet, BarChart2, Settings as SettingsIcon, Menu, Receipt, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
