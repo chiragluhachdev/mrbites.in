@@ -29,6 +29,21 @@ const ClassicDashboard = ({ openSidebar }) => {
   const [showMenuManager, setShowMenuManager] = useState(false);
   const [notification, setNotification] = useState(null);
   const [userHasInteracted, setUserHasInteracted] = useState(false);
+  
+  // Audio state
+  const [unacknowledgedIds, setUnacknowledgedIds] = useState(new Set());
+  const alarmAudio = useRef(new Audio('/NewOrder.mp3'));
+
+  useEffect(() => {
+    // Only loop and play if the user has interacted and there are unacknowledged orders
+    if (unacknowledgedIds.size > 0 && userHasInteracted) {
+      alarmAudio.current.loop = true;
+      alarmAudio.current.play().catch(() => {});
+    } else {
+      alarmAudio.current.pause();
+      alarmAudio.current.currentTime = 0;
+    }
+  }, [unacknowledgedIds, userHasInteracted]);
 
   const TABS = ['incoming', 'cancelled', 'ready', 'completed'];
 
@@ -109,10 +124,20 @@ const ClassicDashboard = ({ openSidebar }) => {
           status: 'pending'
         };
         setOrders(prev => [newOrder, ...prev]);
+        setUnacknowledgedIds(prev => new Set(prev).add(newOrder._id));
         const suffix = newOrder._id ? String(newOrder._id).slice(-4) : '----';
         setNotification(`New Order #${suffix}`);
         playNotificationSound();
         setTimeout(() => setNotification(null), 4000);
+      });
+
+      socket.on('order.statusChanged', ({ orderId, status }) => {
+        setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
+        setUnacknowledgedIds(prev => {
+          const next = new Set(prev);
+          next.delete(orderId);
+          return next;
+        });
       });
 
       return () => socket.disconnect();
@@ -129,6 +154,11 @@ const ClassicDashboard = ({ openSidebar }) => {
 
       await orderAPI.updateStatus(orderId, status);
       setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status } : o));
+      setUnacknowledgedIds(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
 
       const titleMap = {
         preparing: 'Order Accepted — Preparing',
@@ -331,7 +361,22 @@ const ClassicDashboard = ({ openSidebar }) => {
               <>
                 {currentList.map((order, index) => (
                   <div key={order._id} className="card-enter" style={{ animationDelay: `${index * 50}ms` }}>
-                    <OrderCard order={order} onStatusUpdate={handleStatusUpdate} activeTab={activeTab} />
+                    <OrderCard 
+                  key={order._id} 
+                  order={order} 
+                  onStatusUpdate={handleStatusUpdate}
+                  onAcknowledge={() => {
+                    setUnacknowledgedIds(prev => {
+                      if (prev.has(order._id)) {
+                        const next = new Set(prev);
+                        next.delete(order._id);
+                        return next;
+                      }
+                      return prev;
+                    });
+                  }}
+                  activeTab={activeTab} 
+                />
                   </div>
                 ))}
                 {!loading && currentList.length === 0 && (

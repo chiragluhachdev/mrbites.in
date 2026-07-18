@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const OrderCard = ({ order, onStatusUpdate, activeTab }) => {
+const OrderCard = ({ order, onStatusUpdate, onAcknowledge, activeTab }) => {
   const [isCardHovered, setIsCardHovered] = useState(false);
 
   // --- Helpers ---
@@ -107,7 +107,11 @@ const OrderCard = ({ order, onStatusUpdate, activeTab }) => {
   return (
     <div 
       style={cardStyle}
-      onMouseEnter={() => setIsCardHovered(true)}
+      onClick={() => onAcknowledge && onAcknowledge()}
+      onMouseEnter={() => {
+        setIsCardHovered(true);
+        if (onAcknowledge) onAcknowledge();
+      }}
       onMouseLeave={() => setIsCardHovered(false)}
     >
       {/* --- Header --- */}
