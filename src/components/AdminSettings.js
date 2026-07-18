@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { settingsAPI } from '../api';
-import { Loader, Power, Check, ShieldCheck, Info, Star, FlaskConical } from 'lucide-react';
+import { Loader, Power, Check, ShieldCheck, Info, Star } from 'lucide-react';
 
 const inputClass =
   'w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500';
@@ -62,7 +62,6 @@ const AdminSettings = () => {
 
   const paused = settings && !settings.orderingEnabled;
   const ratingsOn = settings ? settings.ratingsEnabled !== false : true;
-  const demoOn = settings ? settings.demoMode === true : false;
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-3xl mx-auto">
@@ -159,54 +158,7 @@ const AdminSettings = () => {
         </div>
       </div>
 
-      {/* Demo mode */}
-      <div
-        className={`border rounded-xl shadow-sm p-5 mb-6 ${
-          demoOn ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-gray-200'
-        }`}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-                demoOn ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500'
-              }`}
-            >
-              <FlaskConical size={16} />
-            </div>
-            <div>
-              <p className="font-bold text-gray-900">
-                {demoOn ? 'Demo mode is ON' : 'Demo mode is off'}
-              </p>
-              <p className="text-xs text-gray-600 font-medium mt-0.5 leading-relaxed max-w-md">
-                {demoOn
-                  ? 'No payment is taken from anyone. Checkout shows a confirmation and drops a marked demo order into the customer’s history — nothing reaches Razorpay, the vendor dashboards, or Finance. Turn OFF for real trade.'
-                  : 'Turn on for app-store review or a live demo: checkout is faked end-to-end with no money and no real orders. Leave off in normal operation.'}
-              </p>
-              {demoOn && (
-                <p className="text-[11px] font-bold text-indigo-700 mt-2">
-                  ⚠ Real ordering is disabled for everyone while this is on.
-                </p>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={() => save('demo', { demoMode: !demoOn }, { demoMode: !demoOn })}
-            disabled={saving === 'demo'}
-            className={`relative w-14 h-7 rounded-full transition-colors shrink-0 disabled:opacity-60 ${
-              demoOn ? 'bg-indigo-600' : 'bg-gray-300'
-            }`}
-            aria-pressed={demoOn}
-            aria-label="Toggle demo mode"
-          >
-            <span
-              className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                demoOn ? 'translate-x-8' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-      </div>
+
 
       {/* Paused message */}
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
@@ -258,7 +210,7 @@ const AdminSettings = () => {
           {[
             ['Commission', 'None — MR-Bites keeps nothing from any order'],
             ['Student charges', 'None — students pay the menu price, with no tax or platform fee'],
-            ['Payments', 'Prepaid online only; an order exists only once its payment verifies'],
+            ['Payments', 'Prepaid online via Razorpay; the demo account (9999999999) skips payment'],
             ['Vendor payouts', 'Manual bank transfers, recorded in Finance'],
           ].map(([label, value]) => (
             <div key={label} className="px-5 py-3 flex items-start justify-between gap-6">
