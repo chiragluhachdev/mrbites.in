@@ -15,6 +15,15 @@ import { motion } from 'framer-motion';
 const GREEN = '#056548';
 const GREEN_DARK = '#043D2C';
 
+/* The MR BITES wordmark as text — MR in the deep campus green, BITES in the
+   logo's gold. `onDark` lifts the green so it stays legible on dark surfaces. */
+export const Wordmark = ({ className = '', onDark = false }) => (
+  <span className={`font-extrabold tracking-tight ${className}`}>
+    <span className={onDark ? 'text-emerald-400' : 'text-[#056548]'}>MR</span>{' '}
+    <span className="text-[#F5A623]">BITES</span>
+  </span>
+);
+
 const NAV_LINKS = [
   { href: '#features', label: 'Features' },
   { href: '#how-it-works', label: 'How it works' },
@@ -69,9 +78,18 @@ const Navbar = () => {
     >
       <nav className="container mx-auto px-4 md:px-6" aria-label="Primary">
         <div className="flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]" aria-label="MR BITES home">
-            <img src="/weblogo.png" alt="MR BITES" width="40" height="40" className="w-9 h-9 object-contain" />
-            <span className="text-lg font-extrabold tracking-tight text-gray-900">MR BITES</span>
+          <a href="#top" className="flex items-center gap-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]" aria-label="MR BITES home">
+            {/* The logo mark, sized larger than the bar and pulled with a
+                negative margin so it overlaps the nav for a premium badge look,
+                without stretching the bar's height. The wordmark sits beside it. */}
+            <img
+              src="/weblogotrp.png"
+              alt=""
+              width="150"
+              height="163"
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? 'h-10 -my-1.5' : 'h-12 md:h-14 -my-2 md:-my-3'}`}
+            />
+            <Wordmark className="text-lg md:text-xl" />
           </a>
 
           <div className="hidden md:flex items-center gap-8">
@@ -209,64 +227,95 @@ const Hero = () => (
   </section>
 );
 
-/* A generic phone mock — no real names, decorative only. */
+/* Phone mock — a faithful, decorative preview of the real MR BITES app. */
+const OUTLETS = [
+  { name: 'Burger Eats', loc: 'Food Court, Block B', rating: '4.6', closed: true },
+  { name: 'Nescafé Corner', loc: 'Block C, Ground Floor', rating: '4.4', time: '8 MIN', img: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=70&w=140' },
+  { name: 'Chai Garam', loc: 'Near Library Lawn', rating: '4.7', time: '6 MIN', img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=70&w=140' },
+];
+
 const PhoneMock = () => (
-  <div className="relative w-[270px] h-[560px] bg-gray-900 rounded-[42px] border-[8px] border-gray-900 shadow-2xl overflow-hidden" role="img" aria-label="MR BITES app preview">
-    <div className="absolute inset-0 bg-[#F9FAFB] flex flex-col">
-      <div className="bg-[#056548] px-4 pt-7 pb-9 relative">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-[8px] text-white/70 font-bold tracking-wider mb-0.5">GOOD AFTERNOON</p>
-            <p className="text-white text-lg font-extrabold tracking-tight">Hey there 👋</p>
-          </div>
-          <div className="w-8 h-8 rounded-full border border-white/30 bg-white/20" />
+  <div className="relative w-[272px] h-[566px] bg-gray-900 rounded-[42px] border-[9px] border-gray-900 shadow-2xl overflow-hidden" role="img" aria-label="MR BITES app preview showing campus outlets">
+    <div className="absolute inset-0 bg-[#F4F5F7] flex flex-col">
+      {/* Green header */}
+      <div className="bg-[#056548] px-4 pt-6 pb-9 relative shrink-0">
+        <span className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-white text-[10px] font-bold">C</span>
+        <p className="text-center text-[19px] font-extrabold tracking-tight leading-none">
+          <span className="text-white">MR</span> <span className="text-[#F5A623]">BITES</span>
+        </p>
+        <p className="text-center text-[10px] text-white/80 font-semibold mt-1.5">Order ahead. Skip the queue.</p>
+      </div>
+
+      {/* Search bar — pulled up over the header in normal flow, so it is never
+          clipped by the scroll area below. */}
+      <div className="px-3 -mt-5 relative z-20 shrink-0">
+        <div className="h-10 bg-white rounded-xl shadow-md flex items-center px-3">
+          <Search size={14} className="text-gray-400 mr-2 shrink-0" />
+          <span className="text-[11px] text-gray-400 font-medium">Search restaurants or locations…</span>
         </div>
       </div>
-      <div className="flex-1 relative px-4">
-        <div className="absolute -top-5 left-4 right-4 h-10 bg-white rounded-xl shadow-md flex items-center px-3 z-20">
-          <Search size={14} className="text-gray-400 mr-2" />
-          <span className="text-xs text-gray-400 font-medium">Search outlets & dishes…</span>
-        </div>
-        <div className="pt-8 flex flex-col gap-3">
-          <div className="flex justify-between items-end">
-            <h3 className="text-sm font-extrabold text-gray-900">Campus outlets</h3>
-            <span className="text-[9px] text-gray-500 font-bold">Open now</span>
+
+      {/* Body */}
+      <div className="flex-1 px-3 overflow-hidden">
+        <div className="pt-3 flex flex-col gap-2.5">
+          {/* Favorites banner */}
+          <div className="bg-[#FFF6EC] border border-[#FCE6CE] rounded-2xl p-2.5 flex items-center gap-2.5">
+            <span className="w-9 h-9 rounded-xl bg-[#FDE0E0] flex items-center justify-center shrink-0"><Heart size={16} className="text-[#EF4444]" fill="#EF4444" /></span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-extrabold text-gray-900 leading-tight">Your Favorites</p>
+              <p className="text-[8px] text-gray-500 leading-tight mt-0.5">Tap ❤️ on dishes you love to save them for quick reorders!</p>
+            </div>
+            <span className="relative w-11 h-9 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center text-lg">🍲
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#056548] rounded-full flex items-center justify-center border-2 border-[#FFF6EC]"><ChevronRight size={9} className="text-white" /></span>
+            </span>
           </div>
-          {[
-            { name: 'The Coffee Corner', loc: 'Block A', rating: '4.8', time: '5–10 min' },
-            { name: 'Food Court Central', loc: 'Main Plaza', rating: '4.6', time: '10 min' },
-          ].map((r) => (
-            <div key={r.name} className="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex gap-3">
-              <div className="w-14 h-14 rounded-xl bg-[#056548]/5 flex items-center justify-center shrink-0">
-                <ShoppingBag size={20} className="text-[#056548]" />
+
+          {/* Nearby outlets */}
+          <div className="flex justify-between items-end mt-0.5">
+            <h3 className="text-[13px] font-extrabold text-gray-900">Nearby Outlets</h3>
+            <span className="text-[9px] text-gray-400 font-semibold">4 places found</span>
+          </div>
+
+          {OUTLETS.map((o) => (
+            <div key={o.name} className="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex gap-2.5">
+              <div className="w-[54px] h-[54px] rounded-xl overflow-hidden shrink-0 relative bg-gray-100">
+                {o.closed ? (
+                  <span className="absolute inset-0 bg-gray-900 flex items-center justify-center text-white text-[8px] font-extrabold tracking-wide">CLOSED</span>
+                ) : (
+                  <img src={o.img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                )}
               </div>
-              <div className="flex-1 flex flex-col justify-between py-0.5">
-                <div className="flex justify-between items-start">
-                  <h4 className="text-xs font-bold text-gray-900 truncate pr-1">{r.name}</h4>
-                  <span className="flex items-center bg-amber-50 px-1 py-0.5 rounded text-[8px] font-bold text-amber-700">
-                    <Star size={8} fill="currentColor" className="mr-0.5" /> {r.rating}
-                  </span>
+              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                <div className="flex justify-between items-start gap-1">
+                  <h4 className="text-[12px] font-bold text-gray-900 truncate">{o.name}</h4>
+                  <span className="flex items-center bg-[#FEF3C7] px-1.5 py-0.5 rounded-md text-[9px] font-bold text-[#B45309] shrink-0"><Star size={9} fill="currentColor" className="mr-0.5" /> {o.rating}</span>
                 </div>
-                <p className="text-[9px] text-gray-500 flex items-center"><MapPin size={8} className="mr-0.5" /> {r.loc}</p>
-                <div className="flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-md w-max">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
-                  <span className="text-[8px] font-bold text-emerald-600 uppercase">{r.time}</span>
+                <p className="text-[9px] text-gray-500 flex items-center"><MapPin size={9} className="mr-0.5 shrink-0" /> {o.loc}</p>
+                <div className="flex justify-between items-center">
+                  {o.closed ? (
+                    <span className="flex items-center gap-1 text-[8px] font-bold text-[#EF4444] uppercase"><span className="w-1.5 h-1.5 rounded-full bg-[#EF4444]" /> Closed</span>
+                  ) : (
+                    <span className="flex items-center bg-emerald-50 px-1.5 py-0.5 rounded-md"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" /><span className="text-[8px] font-bold text-emerald-600 uppercase">{o.time}</span></span>
+                  )}
+                  {!o.closed && <span className="w-5 h-5 bg-gray-50 rounded-full flex items-center justify-center"><ChevronRight size={12} className="text-gray-400" /></span>}
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#056548] rounded-full flex items-center justify-center shadow-lg border-[3px] border-white">
-          <ShoppingBag size={20} className="text-white" />
+
+      {/* Bottom nav with centre FAB */}
+      <div className="absolute bottom-3 left-3 right-3">
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-12 h-12 bg-[#056548] rounded-full flex items-center justify-center shadow-lg border-[3px] border-white z-10">
+          <ShoppingBag size={19} className="text-white" />
         </div>
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl h-[52px] flex items-center justify-between px-4 shadow-lg border border-gray-100">
-          <Home size={18} className="text-[#056548]" fill="#056548" />
-          <Search size={18} className="text-gray-400" />
-          <span className="w-12" />
-          <span className="relative"><ShoppingCart size={18} className="text-gray-400" /><span className="absolute -top-1.5 -right-1.5 bg-red-500 w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white text-[6px] font-bold text-white">2</span></span>
-          <Heart size={18} className="text-gray-400" />
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl h-[50px] flex items-center justify-between px-5 shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-gray-100">
+          <span className="flex flex-col items-center"><Home size={17} className="text-[#056548]" fill="#056548" /><span className="w-1 h-1 rounded-full bg-[#056548] mt-0.5" /></span>
+          <Search size={17} className="text-gray-400" />
+          <span className="w-8" />
+          <span className="relative"><ShoppingCart size={17} className="text-gray-400" /><span className="absolute -top-1.5 -right-1.5 bg-[#EF4444] w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white text-[6px] font-bold text-white">1</span></span>
+          <Heart size={17} className="text-gray-400" />
         </div>
       </div>
     </div>
@@ -549,7 +598,7 @@ const Footer = () => {
           <div className="col-span-2">
             <div className="flex items-center gap-2.5 mb-4">
               <img src="/weblogo.png" alt="MR BITES" width="36" height="36" className="w-9 h-9 object-contain bg-white rounded-lg p-0.5" />
-              <span className="text-xl font-extrabold text-white tracking-tight">MR BITES</span>
+              <Wordmark className="text-xl" onDark />
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-5">
               The campus food ordering platform. Pre-order, pay online, and skip the queue — for universities, colleges,

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Mail, Store } from 'lucide-react';
 import { Instagram, Linkedin, Twitter } from './SocialIcons';
+import { Wordmark } from './LandingPage';
 
 const SUPPORT = 'support@mrbites.in';
 const COMPANY = 'Revera Studio';
@@ -45,7 +46,7 @@ const Shell = ({ title, subtitle, children }) => (
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#056548]" aria-label="MR BITES home">
           <img src="/weblogo.png" alt="MR BITES" width="36" height="36" className="w-8 h-8 object-contain" />
-          <span className="text-lg font-extrabold tracking-tight">MR BITES</span>
+          <Wordmark className="text-lg" />
         </Link>
         <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-[#056548]">
           <ArrowLeft size={16} /> Back to home
