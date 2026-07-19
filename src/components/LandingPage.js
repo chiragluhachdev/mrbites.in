@@ -4,7 +4,7 @@ import { portalUrl } from '../portal';
 import {
   Clock, Store, CreditCard, ChevronRight, ChevronDown, Smartphone, Search,
   CheckCircle2, Menu, X, Heart, Star, MapPin, Home, ShoppingBag, ShoppingCart,
-  Bell, ShieldCheck, GraduationCap, Building2, Users, Zap, ArrowRight, Mail,
+  Bell, ShieldCheck, GraduationCap, Building2, Users, Zap, ArrowRight, Mail, Phone,
 } from 'lucide-react';
 import { Instagram, Linkedin, Twitter, Facebook } from './SocialIcons';
 import { motion } from 'framer-motion';
@@ -589,7 +589,7 @@ const Footer = () => {
   const cols = [
     { title: 'Product', links: [{ l: 'Features', h: '#features' }, { l: 'How it works', h: '#how-it-works' }, { l: 'For campuses', h: '#campuses' }, { l: 'FAQ', h: '#faq' }] },
     { title: 'Company', links: [{ l: 'Partner with us', to: '/contact' }, { l: 'Contact', to: '/contact' }, { l: 'Careers — soon', h: '#', muted: true }, { l: 'Blog — soon', h: '#', muted: true }] },
-    { title: 'Legal', links: [{ l: 'Privacy Policy', to: '/privacy' }, { l: 'Terms & Conditions', to: '/terms' }, { l: 'Refund Policy', to: '/refund' }, { l: 'Support', href: 'mailto:support@mrbites.in' }] },
+    { title: 'Legal', links: [{ l: 'Privacy Policy', to: '/privacy' }, { l: 'Terms & Conditions', to: '/terms' }, { l: 'Refund Policy', to: '/refund' }, { l: 'Support', href: 'mailto:mrbites.in@gmail.com' }] },
   ];
   return (
     <footer className="bg-gray-900 text-gray-300 pt-16 pb-8">
@@ -639,8 +639,9 @@ const Footer = () => {
 
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
           <p>© {year} MR BITES. All Rights Reserved.</p>
-          <p className="flex items-center gap-4">
-            <a href="mailto:support@mrbites.in" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Mail size={14} /> support@mrbites.in</a>
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <a href="mailto:mrbites.in@gmail.com" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Mail size={14} /> mrbites.in@gmail.com</a>
+            <a href="tel:+918130809374" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Phone size={14} /> +91 8130809374</a>
             <span className="hidden sm:inline text-gray-600">·</span>
             <span>A <span className="text-gray-300 font-semibold">Revera Technologies</span> product</span>
           </p>

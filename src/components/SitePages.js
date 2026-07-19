@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Store } from 'lucide-react';
+import { ArrowLeft, Mail, Phone } from 'lucide-react';
 import { Instagram, Linkedin, Twitter } from './SocialIcons';
 import { Wordmark } from './LandingPage';
 
-const SUPPORT = 'support@mrbites.in';
+const SUPPORT = 'mrbites.in@gmail.com';
+const PHONE = '+91 8130809374';
+const PHONE_TEL = '+918130809374';
 const COMPANY = 'Revera Technologies';
 const EFFECTIVE = 'July 2026';
 
@@ -168,17 +170,17 @@ export const ContactPage = () => {
       <P>Whether you want MR BITES at your campus, run a cafeteria or food court, or just need a hand — reach out. We set up new outlets fast: import your menu, hand you a live dashboard, and you are taking orders, often within a day.</P>
 
       <div className="grid sm:grid-cols-2 gap-4 not-prose my-8">
-        <a href={`mailto:partnerships@mrbites.in`} className="block p-6 rounded-2xl border border-gray-100 bg-gray-50/60 hover:bg-white hover:shadow-lg transition-all">
-          <span className="w-11 h-11 rounded-xl bg-[#056548]/8 text-[#056548] flex items-center justify-center mb-4"><Store size={20} /></span>
-          <h2 className="font-bold text-gray-900 mb-1">Partner with us</h2>
-          <p className="text-sm text-gray-600 mb-3">Bring MR BITES to your campus or outlet.</p>
-          <span className="text-sm font-bold text-[#056548]">partnerships@mrbites.in</span>
-        </a>
         <a href={`mailto:${SUPPORT}`} className="block p-6 rounded-2xl border border-gray-100 bg-gray-50/60 hover:bg-white hover:shadow-lg transition-all">
           <span className="w-11 h-11 rounded-xl bg-[#056548]/8 text-[#056548] flex items-center justify-center mb-4"><Mail size={20} /></span>
-          <h2 className="font-bold text-gray-900 mb-1">Support</h2>
-          <p className="text-sm text-gray-600 mb-3">Order help, refunds, or anything else.</p>
+          <h2 className="font-bold text-gray-900 mb-1">Email us</h2>
+          <p className="text-sm text-gray-600 mb-3">Order help, refunds, partnerships — anything.</p>
           <span className="text-sm font-bold text-[#056548]">{SUPPORT}</span>
+        </a>
+        <a href={`tel:${PHONE_TEL}`} className="block p-6 rounded-2xl border border-gray-100 bg-gray-50/60 hover:bg-white hover:shadow-lg transition-all">
+          <span className="w-11 h-11 rounded-xl bg-[#056548]/8 text-[#056548] flex items-center justify-center mb-4"><Phone size={20} /></span>
+          <h2 className="font-bold text-gray-900 mb-1">Call or WhatsApp</h2>
+          <p className="text-sm text-gray-600 mb-3">Bring MR BITES to your campus or outlet.</p>
+          <span className="text-sm font-bold text-[#056548]">{PHONE}</span>
         </a>
       </div>
 
